@@ -5,114 +5,134 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>NOVAPhone OS</title>
     <style>
-        :root { --mi-blue: #0c64d4; }
-        body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden; color: white; }
+        :root { --mi-blue: #0c64d4; --bg-light: #ffffff; }
+        body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: 'Segoe UI', Roboto, sans-serif; overflow: hidden; }
 
-        /* --- iOS STİLİ AÇILIŞ (BOOT) --- */
+        /* AÇILIŞ (iOS) */
         #boot-screen {
-            position: fixed; inset: 0; background: #000;
+            position: fixed; inset: 0; background: #000; z-index: 1000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            z-index: 1000; transition: opacity 0.8s;
+            transition: opacity 0.8s;
         }
-        .apple-logo { font-size: 3.5rem; font-weight: bold; margin-bottom: 30px; letter-spacing: -1px; }
-        
-        /* iOS Dönen Yuvarlak (Spinner) */
-        .ios-spinner {
-            width: 30px; height: 30px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-top: 3px solid #fff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
+        .ios-spinner { width: 30px; height: 30px; border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid #fff; border-radius: 50%; animation: spin 1s linear infinite; }
 
-        /* --- XIAOMI STİLİ KURULUM (SETUP) --- */
-        #setup-screen {
-            position: fixed; inset: 0; background: #fff; color: #000;
+        /* KURULUM (XIAOMI STİLİ) */
+        #setup-container {
+            position: fixed; inset: 0; background: var(--bg-light); color: #000;
             display: none; flex-direction: column; z-index: 900;
         }
-        .setup-header { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .mi-logo { width: 60px; height: 60px; background: var(--mi-blue); border-radius: 18px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 24px; }
-        .setup-header h1 { font-size: 28px; margin: 0; font-weight: 500; }
-        .setup-header p { color: #666; margin-top: 10px; }
+        .step { display: none; flex-direction: column; height: 100%; padding: 40px 20px; box-sizing: border-box; }
+        .active { display: flex; }
 
-        .setup-body { padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .mi-input {
-            width: 85%; padding: 15px; border: 1px solid #ddd; border-radius: 10px;
-            background: #f5f5f5; font-size: 16px; margin-bottom: 20px; outline: none; transition: border 0.3s;
-        }
-        .mi-input:focus { border: 1px solid var(--mi-blue); }
+        .header { text-align: center; margin-bottom: 40px; }
+        .mi-logo { width: 50px; height: 50px; background: var(--mi-blue); color: white; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-weight: bold; margin: 0 auto 20px; }
+        
+        h1 { font-size: 24px; font-weight: 500; margin: 0; }
+        p { color: #666; font-size: 14px; margin-top: 8px; }
 
-        .setup-footer { height: 100px; display: flex; align-items: center; justify-content: center; }
-        .next-btn {
-            width: 60px; height: 60px; background: var(--mi-blue);
-            border: none; border-radius: 50%; color: white; font-size: 24px;
-            cursor: pointer; box-shadow: 0 4px 15px rgba(12, 100, 212, 0.4);
-            display: flex; align-items: center; justify-content: center;
-        }
+        /* Form Elemanları */
+        .options-list { width: 100%; border: 1px solid #eee; border-radius: 15px; overflow: hidden; }
+        .option { padding: 18px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; cursor: pointer; }
+        .option:last-child { border-bottom: none; }
+        .option:active { background: #f0f0f0; }
 
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes pulse { 0% { opacity: 0.7; } 50% { opacity: 1; } 100% { opacity: 0.7; } }
+        .mi-input { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 12px; background: #f9f9f9; font-size: 16px; box-sizing: border-box; margin-top: 20px; }
+        
+        .agreement { height: 200px; overflow-y: scroll; background: #f5f5f5; padding: 15px; font-size: 12px; line-height: 1.6; border-radius: 10px; text-align: left; }
+
+        /* Footer / Button */
+        .footer { margin-top: auto; display: flex; justify-content: center; padding-bottom: 30px; }
+        .next-btn { width: 65px; height: 65px; background: var(--mi-blue); border: none; border-radius: 50%; color: white; font-size: 28px; cursor: pointer; box-shadow: 0 4px 20px rgba(12,100,212,0.3); }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <!-- iOS Açılış Ekranı -->
     <div id="boot-screen">
-        <div class="apple-logo">NOVAPhone</div>
+        <h1 style="color:white; margin-bottom: 30px; letter-spacing: 3px;">NOVAPhone</h1>
         <div class="ios-spinner"></div>
     </div>
 
-    <!-- Xiaomi Kurulum Ekranı -->
-    <div id="setup-screen">
-        <div class="setup-header">
-            <div class="mi-logo">N</div>
-            <h1>Kuruluma başlayın</h1>
-            <p>NOVAPhone OS | Sürüm 1.0</p>
+    <div id="setup-container">
+        
+        <!-- Adım 1: Dil Seçimi -->
+        <div class="step active" id="step1">
+            <div class="header"><div class="mi-logo">N</div><h1>Dil Seçin</h1><p>Sistemi hangi dilde kullanmak istersiniz?</p></div>
+            <div class="options-list">
+                <div class="option" onclick="nextStep()">Türkçe <span>></span></div>
+                <div class="option" onclick="nextStep()">English <span>></span></div>
+                <div class="option" onclick="nextStep()">Deutsch <span>></span></div>
+            </div>
         </div>
 
-        <div class="setup-body">
-            <input type="text" id="username-input" class="mi-input" placeholder="Yönetici Adı" value="Admin">
-            <p style="font-size: 12px; color: #999;">Kullanıcı adını "Admin" olarak belirlediniz.</p>
+        <!-- Adım 2: Bölge Seçimi -->
+        <div class="step" id="step2">
+            <div class="header"><h1>Bölge Seçin</h1><p>Hizmetleri optimize etmek için bölgenizi seçin.</p></div>
+            <div class="options-list">
+                <div class="option" onclick="nextStep()">Türkiye <span>></span></div>
+                <div class="option" onclick="nextStep()">Almanya <span>></span></div>
+                <div class="option" onclick="nextStep()">Amerika Birleşik Devletleri <span>></span></div>
+            </div>
         </div>
 
-        <div class="setup-footer">
-            <button class="next-btn" onclick="finishSetup()">→</button>
+        <!-- Adım 3: Kullanıcı Sözleşmesi -->
+        <div class="step" id="step3">
+            <div class="header"><h1>Kullanıcı Sözleşmesi</h1><p>Lütfen şartları kabul edin.</p></div>
+            <div class="agreement">
+                1. NOVAPhone OS kullanım şartlarını kabul ediyorsunuz.<br>
+                2. Bu yazılım bir simülasyondur ve Admin (Yusuf) tarafından geliştirilmiştir.<br>
+                3. Verileriniz cihazınızda yerel olarak işlenir.<br>
+                4. Kardeş şakaları ve ileri seviye donanım modları için uygundur.<br><br>
+                ...Devamı için aşağı kaydırın...
+            </div>
+            <div class="footer"><button class="next-btn" onclick="nextStep()">✓</button></div>
         </div>
+
+        <!-- Adım 4: Cihaz ve Kullanıcı İsmi -->
+        <div class="step" id="step4">
+            <div class="header"><h1>Kişiselleştirme</h1><p>Cihazınıza bir kimlik verin.</p></div>
+            <input type="text" id="dev-name" class="mi-input" placeholder="Cihaz İsmi (Örn: Yusuf'un Telefonu)">
+            <input type="text" id="user-name" class="mi-input" placeholder="Yönetici Adı" value="Admin">
+            <div class="footer"><button class="next-btn" onclick="finishSetup()">→</button></div>
+        </div>
+
     </div>
 
-    <!-- Ana Sistem -->
-    <div id="main-system" style="display:none; padding: 20px; text-align: center;">
-        <h1 style="color: white;">Sistem Aktif</h1>
+    <div id="main-system" style="display:none; color: white; text-align: center; padding-top: 100px;">
+        <h1>NOVAPhone OS Hazır!</h1>
+        <p>Masaüstü modülü için kod bekleniyor...</p>
     </div>
 
     <script>
-        // Açılış simülasyonu (3 saniye sürer)
+        // Açılış
         setTimeout(() => {
-            const boot = document.getElementById('boot-screen');
-            boot.style.opacity = '0';
+            document.getElementById('boot-screen').style.opacity = '0';
             setTimeout(() => {
-                boot.style.display = 'none';
-                document.getElementById('setup-screen').style.display = 'flex';
+                document.getElementById('boot-screen').style.display = 'none';
+                document.getElementById('setup-container').style.display = 'flex';
             }, 800);
-        }, 3500);
+        }, 3000);
+
+        let currentStep = 1;
+        function nextStep() {
+            document.getElementById('step' + currentStep).classList.remove('active');
+            currentStep++;
+            document.getElementById('step' + currentStep).classList.add('active');
+        }
 
         function finishSetup() {
-            const user = document.getElementById('username-input').value;
-            // Xiaomi stili bir geçiş efekti
-            document.getElementById('setup-screen').style.transition = '0.5s';
-            document.getElementById('setup-screen').style.transform = 'translateX(-100%)';
+            const dev = document.getElementById('dev-name').value;
+            const user = document.getElementById('user-name').value;
+            alert(`${dev} cihazı ${user} adına kaydedildi!`);
+            
+            document.getElementById('setup-container').style.transform = 'translateY(-100%)';
+            document.getElementById('setup-container').style.transition = '0.6s ease-in';
             
             setTimeout(() => {
-                document.getElementById('setup-screen').style.display = 'none';
+                document.getElementById('setup-container').style.display = 'none';
                 document.getElementById('main-system').style.display = 'block';
-                document.getElementById('main-system').innerHTML = `
-                    <div style="margin-top: 50px;">
-                        <h2>Kurulum Tamamlandı</h2>
-                        <p>Hoş geldin, ${user}!</p>
-                        <p>Masaüstü modülü yükleniyor...</p>
-                    </div>
-                `;
-            }, 500);
+            }, 600);
         }
     </script>
 </body>
