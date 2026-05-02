@@ -5,85 +5,114 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>NOVAPhone OS</title>
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: 'Segoe UI', sans-serif; overflow: hidden; color: white; }
-        
-        /* 1. AÇILIŞ EKRANI (BOOT) */
+        :root { --mi-blue: #0c64d4; }
+        body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden; color: white; }
+
+        /* --- iOS STİLİ AÇILIŞ (BOOT) --- */
         #boot-screen {
             position: fixed; inset: 0; background: #000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            z-index: 1000; transition: opacity 1s ease-out;
+            z-index: 1000; transition: opacity 0.8s;
         }
-        .logo { font-size: 3rem; font-weight: bold; letter-spacing: 5px; margin-bottom: 20px; animation: pulse 2s infinite; }
-        .loader-bar { width: 200px; height: 4px; background: #333; border-radius: 2px; position: relative; overflow: hidden; }
-        .progress { width: 0%; height: 100%; background: #fff; position: absolute; transition: width 0.1s; }
+        .apple-logo { font-size: 3.5rem; font-weight: bold; margin-bottom: 30px; letter-spacing: -1px; }
+        
+        /* iOS Dönen Yuvarlak (Spinner) */
+        .ios-spinner {
+            width: 30px; height: 30px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
 
-        /* 2. KURULUM EKRANI (SETUP) */
+        /* --- XIAOMI STİLİ KURULUM (SETUP) --- */
         #setup-screen {
-            position: fixed; inset: 0; background: #111;
-            display: none; flex-direction: column; align-items: center; justify-content: center;
-            padding: 40px; text-align: center; z-index: 900;
+            position: fixed; inset: 0; background: #fff; color: #000;
+            display: none; flex-direction: column; z-index: 900;
         }
-        .setup-card { background: #222; padding: 30px; border-radius: 20px; width: 80%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        input { width: 100%; padding: 12px; margin: 20px 0; border-radius: 8px; border: none; background: #333; color: white; font-size: 1rem; outline: none; }
-        button { background: #fff; color: #000; border: none; padding: 12px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        button:hover { background: #ddd; }
+        .setup-header { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .mi-logo { width: 60px; height: 60px; background: var(--mi-blue); border-radius: 18px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 24px; }
+        .setup-header h1 { font-size: 28px; margin: 0; font-weight: 500; }
+        .setup-header p { color: #666; margin-top: 10px; }
 
-        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+        .setup-body { padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .mi-input {
+            width: 85%; padding: 15px; border: 1px solid #ddd; border-radius: 10px;
+            background: #f5f5f5; font-size: 16px; margin-bottom: 20px; outline: none; transition: border 0.3s;
+        }
+        .mi-input:focus { border: 1px solid var(--mi-blue); }
+
+        .setup-footer { height: 100px; display: flex; align-items: center; justify-content: center; }
+        .next-btn {
+            width: 60px; height: 60px; background: var(--mi-blue);
+            border: none; border-radius: 50%; color: white; font-size: 24px;
+            cursor: pointer; box-shadow: 0 4px 15px rgba(12, 100, 212, 0.4);
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulse { 0% { opacity: 0.7; } 50% { opacity: 1; } 100% { opacity: 0.7; } }
     </style>
 </head>
 <body>
 
-    <!-- Açılış Bölümü -->
+    <!-- iOS Açılış Ekranı -->
     <div id="boot-screen">
-        <div class="logo">NOVAPhone</div>
-        <div class="loader-bar"><div id="boot-progress" class="progress"></div></div>
+        <div class="apple-logo">NOVAPhone</div>
+        <div class="ios-spinner"></div>
     </div>
 
-    <!-- Kurulum Bölümü -->
+    <!-- Xiaomi Kurulum Ekranı -->
     <div id="setup-screen">
-        <div class="setup-card">
-            <h1>Hoş Geldiniz</h1>
-            <p>NOVAPhone OS dünyasına ilk adımınızı atın.</p>
-            <input type="text" id="username-input" placeholder="Kullanıcı adınızı belirleyin" value="Admin">
-            <button onclick="finishSetup()">Kurulumu Tamamla</button>
+        <div class="setup-header">
+            <div class="mi-logo">N</div>
+            <h1>Kuruluma başlayın</h1>
+            <p>NOVAPhone OS | Sürüm 1.0</p>
+        </div>
+
+        <div class="setup-body">
+            <input type="text" id="username-input" class="mi-input" placeholder="Yönetici Adı" value="Admin">
+            <p style="font-size: 12px; color: #999;">Kullanıcı adını "Admin" olarak belirlediniz.</p>
+        </div>
+
+        <div class="setup-footer">
+            <button class="next-btn" onclick="finishSetup()">→</button>
         </div>
     </div>
 
-    <!-- Ana Sistem (Önceki aşama) -->
-    <div id="main-system" style="display:none;">
-        <h1 id="welcome-msg"></h1>
+    <!-- Ana Sistem -->
+    <div id="main-system" style="display:none; padding: 20px; text-align: center;">
+        <h1 style="color: white;">Sistem Aktif</h1>
     </div>
 
     <script>
-        // BOOT SİMASYONU
-        let prog = 0;
-        const progBar = document.getElementById('boot-progress');
-        
-        const bootInterval = setInterval(() => {
-            prog += Math.random() * 5;
-            if(prog >= 100) {
-                prog = 100;
-                clearInterval(bootInterval);
-                setTimeout(showSetup, 500);
-            }
-            progBar.style.width = prog + '%';
-        }, 100);
-
-        function showSetup() {
-            document.getElementById('boot-screen').style.opacity = '0';
+        // Açılış simülasyonu (3 saniye sürer)
+        setTimeout(() => {
+            const boot = document.getElementById('boot-screen');
+            boot.style.opacity = '0';
             setTimeout(() => {
-                document.getElementById('boot-screen').style.display = 'none';
+                boot.style.display = 'none';
                 document.getElementById('setup-screen').style.display = 'flex';
-            }, 1000);
-        }
+            }, 800);
+        }, 3500);
 
         function finishSetup() {
             const user = document.getElementById('username-input').value;
-            alert("Sistem yapılandırılıyor... Hoş geldin " + user);
-            // Burada ana ekrana geçiş kodlarını tetikleyeceğiz
-            document.getElementById('setup-screen').style.display = 'none';
-            document.getElementById('main-system').style.display = 'block';
-            document.getElementById('welcome-msg').innerText = "Cihaz Hazır: " + user;
+            // Xiaomi stili bir geçiş efekti
+            document.getElementById('setup-screen').style.transition = '0.5s';
+            document.getElementById('setup-screen').style.transform = 'translateX(-100%)';
+            
+            setTimeout(() => {
+                document.getElementById('setup-screen').style.display = 'none';
+                document.getElementById('main-system').style.display = 'block';
+                document.getElementById('main-system').innerHTML = `
+                    <div style="margin-top: 50px;">
+                        <h2>Kurulum Tamamlandı</h2>
+                        <p>Hoş geldin, ${user}!</p>
+                        <p>Masaüstü modülü yükleniyor...</p>
+                    </div>
+                `;
+            }, 500);
         }
     </script>
 </body>
