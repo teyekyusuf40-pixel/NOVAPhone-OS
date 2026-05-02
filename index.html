@@ -3,128 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nova OS V26 Pro</title>
+    <title>Nova OS V26 - Pro</title>
     <style>
-        :root { --blue: #007aff; --bg: #f2f2f7; }
+        :root { --blue: #007aff; --glass: rgba(255, 255, 255, 0.2); }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, sans-serif; }
-        body, html { margin: 0; padding: 0; height: 100%; background: #000; overflow: hidden; }
+        body, html { margin: 0; padding: 0; height: 100%; background: #000; overflow: hidden; color: white; }
 
-        /* SİSTEM EKRANLARI */
-        #low-battery-screen, #update-screen, #boot { position: fixed; inset: 0; z-index: 100000; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; background: #000; }
-        .progress-bar { width: 80%; height: 6px; background: #333; border-radius: 3px; margin-top: 20px; overflow: hidden; }
-        #progress-fill { width: 0%; height: 100%; background: var(--blue); transition: 0.3s; }
+        /* 1. ATMOSFERİK AÇILIŞ (DÖNEN YUVARLAK) */
+        #boot { position: fixed; inset: 0; background: #000; z-index: 100000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .spinner { width: 80px; height: 80px; border: 4px solid rgba(255,255,255,0.1); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ANA ARAYÜZ */
-        #os { display: none; height: 100vh; flex-direction: column; background: url('https://images.unsplash.com/photo-1557683316-973673baf926') center/cover; }
-        .status-bar { height: 44px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; background: rgba(0,0,0,0.3); backdrop-filter: blur(20px); color: white; font-size: 14px; }
+        /* 2. KURULUM EKRANI */
+        #setup { position: fixed; inset: 0; background: #fff; color: #000; z-index: 95000; display: none; flex-direction: column; padding: 40px; align-items: center; justify-content: center; }
+        .setup-card { width: 100%; max-width: 400px; text-align: center; }
+        input, select { width: 100%; padding: 15px; background: #f2f2f7; border: 1px solid #ddd; border-radius: 12px; margin: 10px 0; font-size: 16px; }
+        .btn { width: 100%; padding: 18px; background: var(--blue); color: white; border: none; border-radius: 15px; font-weight: bold; cursor: pointer; }
+
+        /* 3. KİLİT EKRANI */
+        #lock { position: fixed; inset: 0; background: url('https://images.unsplash.com/photo-1557683316-973673baf926') center/cover; z-index: 90000; display: none; flex-direction: column; align-items: center; justify-content: space-between; padding: 100px 0; transition: 0.6s; }
+        #lock-clock { font-size: 80px; font-weight: 200; }
+
+        /* 4. GÜNCELLEME EKRANI (20 SN - GİZLİ SAYAÇ) */
+        #update-ui { position: fixed; inset: 0; background: #000; z-index: 110000; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .p-bar { width: 70%; height: 4px; background: #333; border-radius: 2px; margin-top: 20px; }
+        #p-fill { width: 0%; height: 100%; background: #fff; transition: linear; }
+
+        /* 5. ANA SİSTEM VE KONTROL MERKEZİ */
+        #os { display: none; height: 100vh; flex-direction: column; background: url('https://images.unsplash.com/photo-1519681393784-d120267933ba') center/cover; }
+        .status-bar { height: 44px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; background: rgba(0,0,0,0.2); backdrop-filter: blur(15px); z-index: 1000; }
+        #cc { position: fixed; top: -100%; inset: 0 auto 0 0; width: 100%; height: 350px; background: rgba(0,0,0,0.8); backdrop-filter: blur(30px); z-index: 2000; transition: 0.4s; padding: 60px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
         
-        .app-grid { display: grid; grid-template-columns: repeat(4, 1fr); padding: 25px; gap: 20px; }
-        .app { display: flex; flex-direction: column; align-items: center; color: white; cursor: pointer; }
-        .app-icon { width: 65px; height: 65px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 32px; margin-bottom: 5px; box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
-        .app span { font-size: 12px; font-weight: 500; text-shadow: 1px 1px 3px #000; }
+        /* APPS */
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); padding: 25px; gap: 20px; }
+        .app { display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .app-icon { width: 65px; height: 65px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        .app span { font-size: 12px; margin-top: 8px; text-shadow: 1px 1px 3px #000; }
 
         /* PENCERE SİSTEMİ */
-        #win { position: fixed; inset: 0; background: #fff; z-index: 50000; display: none; flex-direction: column; animation: slideUp 0.4s ease; }
-        .win-h { height: 60px; display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid #eee; justify-content: space-between; background: #f8f8f8; }
-        .win-b { flex: 1; overflow: hidden; }
+        #win { position: fixed; inset: 0; background: #fff; color: #000; z-index: 5000; display: none; flex-direction: column; }
+        .win-h { height: 60px; display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid #eee; justify-content: space-between; }
         iframe { width: 100%; height: 100%; border: none; }
-
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <!-- SİSTEM BİLEŞENLERİ -->
-    <div id="boot"><h1>NOVA OS</h1><p>Admin Yusuf Edition</p></div>
+    <!-- AÇILIŞ -->
+    <div id="boot"><div class="spinner"></div><h2 style="margin-top:20px; letter-spacing:5px;">NOVA OS</h2></div>
 
-    <div id="low-battery-screen" style="display:none;">
-        <div style="font-size:50px;">🪫</div>
-        <h2>Şarj Bitti!</h2>
-        <p id="charge-timer">Lütfen 10 dakika bekleyin.</p>
-        <button id="c-btn" onclick="startCharging()" style="padding:15px 30px; background:var(--blue); border:none; color:white; border-radius:12px; font-weight:bold;">Şarj Et</button>
-    </div>
-
-    <div id="update-screen" style="display:none;">
-        <h2 id="up-title">V26 Güncellemesi Yükleniyor</h2>
-        <div class="progress-bar"><div id="progress-fill"></div></div>
-        <p id="up-perc">%0</p>
-        <p style="font-size:12px; opacity:0.6;">Bu işlem 5 dakika sürebilir.</p>
-    </div>
-
-    <!-- ANA İŞLETİM SİSTEMİ -->
-    <div id="os">
-        <div class="status-bar">
-            <span id="clock">00:00</span>
-            <span id="bat">🔋 %100</span>
+    <!-- KURULUM -->
+    <div id="setup">
+        <div class="setup-card">
+            <h1 style="color:var(--blue)">Hoş Geldiniz</h1>
+            <input type="text" id="s-user" placeholder="Adınız" value="Admin Yusuf">
+            <input type="password" id="s-pass" placeholder="Kilit Şifresi Belirle">
+            <select id="s-lang"><option>Türkçe</option><option>English</option></select>
+            <button class="btn" onclick="completeSetup()">Kurulumu Bitir</button>
         </div>
-        <div class="app-grid" id="grid"></div>
+    </div>
+
+    <!-- GÜNCELLEME -->
+    <div id="update-ui">
+        <h2>Sistem Güncelleniyor...</h2>
+        <div class="p-bar"><div id="p-fill"></div></div>
+        <p id="up-text" style="margin-top:10px; opacity:0.6">Lütfen bekleyin</p>
+    </div>
+
+    <!-- KİLİT EKRANI -->
+    <div id="lock" onmousedown="startY=event.clientY" ontouchstart="startY=event.touches[0].clientY">
+        <h1 id="lock-time">00:00</h1>
+        <div id="pass-box" style="display:none; width:80%; max-width:300px;">
+            <input type="password" id="check-pass" placeholder="Şifre" style="text-align:center; background:rgba(255,255,255,0.2); border:none; color:white;">
+            <button class="btn" onclick="attemptUnlock()" style="margin-top:10px;">Giriş</button>
+        </div>
+        <p id="hint">▲ Açmak için yukarı kaydır</p>
+    </div>
+
+    <!-- KONTROL MERKEZİ -->
+    <div id="cc" onclick="toggleCC()">
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:15px;">
+            <div style="background:var(--glass); height:70px; border-radius:15px; display:flex; align-items:center; justify-content:center; font-size:24px;">✈️</div>
+            <div style="background:var(--blue); height:70px; border-radius:15px; display:flex; align-items:center; justify-content:center; font-size:24px;">📶</div>
+            <div style="background:var(--glass); height:70px; border-radius:15px; display:flex; align-items:center; justify-content:center; font-size:24px;">🌙</div>
+            <div style="background:var(--glass); height:70px; border-radius:15px; display:flex; align-items:center; justify-content:center; font-size:24px;" onclick="location.reload()">🔄</div>
+        </div>
+    </div>
+
+    <!-- ANA EKRAN -->
+    <div id="os">
+        <div class="status-bar" onclick="toggleCC()">
+            <span id="os-time">00:00</span>
+            <span id="bat-stat">🔋 %100</span>
+        </div>
+        <div class="grid" id="app-grid"></div>
     </div>
 
     <!-- PENCERE -->
     <div id="win">
-        <div class="win-h"><h3 id="win-t" style="margin:0">App</h3><button onclick="closeApp()" style="border:none; background:none; color:var(--blue); font-weight:bold;">Bitti</button></div>
-        <div id="win-b" class="win-b"></div>
+        <div class="win-h"><h3 id="win-t" style="margin:0">App</h3><button onclick="closeApp()" style="border:none; background:none; color:var(--blue); font-weight:bold;">Kapat</button></div>
+        <div id="win-b" style="flex:1; overflow:hidden;"></div>
     </div>
 
     <script>
-        let battery = 100;
-        let version = "V17";
+        let version = "V17"; let user = "Admin"; let password = ""; let bat = 100;
         const apps = [
-            {n:'Ayarlar', i:'⚙️', c:'#8e8e93', t:'settings'},
-            {n:'NurıWEB', i:'🌐', c:'#fff', t:'web', u:'https://duckduckgo.com'},
-            {n:'YouTube', i:'🎬', c:'#ff0000', t:'web', u:'https://www.youtube.com/embed/dQw4w9WgXcQ'},
-            {n:'Harita', i:'📍', c:'#34c759', t:'web', u:'https://www.google.com/maps/embed'},
-            {n:'Hava', i:'☀️', c:'#007aff', t:'web', u:'https://www.mgm.gov.tr'},
-            {n:'Galeri', i:'🖼️', c:'#ff2d55', t:'web', u:'https://www.bing.com/images/trending'},
-            {n:'Arama', i:'📞', c:'#2ecc71', t:'tel'}
+            {n:'Ayarlar', i:'⚙️', c:'#8e8e93'},
+            {n:'NurıWEB', i:'🌐', c:'#fff', u:'https://www.bing.com'},
+            {n:'YouTube', i:'🎬', c:'#f00', u:'https://www.youtube.com/embed/dQw4w9WgXcQ'},
+            {n:'Harita', i:'📍', c:'#34c759', u:'https://www.google.com/maps/embed'},
+            {n:'Hava', i:'☀️', c:'#007aff', u:'https://www.mgm.gov.tr'},
+            {n:'Arama', i:'📞', c:'#2ecc71'}
         ];
 
-        // 1. ŞARJ SİSTEMİ
-        setInterval(() => {
-            if(battery > 0) {
-                battery--;
-                document.getElementById('bat').innerText = `🔋 %${battery}`;
-                if(battery === 0) document.getElementById('low-battery-screen').style.display = 'flex';
+        // SÜREÇLER
+        setTimeout(() => { document.getElementById('boot').style.display='none'; document.getElementById('setup').style.display='flex'; }, 3000);
+
+        function completeSetup() {
+            user = document.getElementById('s-user').value;
+            password = document.getElementById('s-pass').value;
+            document.getElementById('setup').style.display='none';
+            document.getElementById('lock').style.display='flex';
+            renderApps();
+        }
+
+        // KİLİT
+        let startY = 0;
+        window.onmouseup = (e) => {
+            if(startY - e.clientY > 100) {
+                if(password !== "") { document.getElementById('pass-box').style.display='block'; document.getElementById('hint').style.display='none'; }
+                else { unlockOS(); }
             }
-        }, 60000); // Gerçek 1 dakika. Test için 1000 yapabilirsin.
-
-        function startCharging() {
-            document.getElementById('c-btn').style.display = 'none';
-            let mins = 10;
-            let interval = setInterval(() => {
-                mins--;
-                document.getElementById('charge-timer').innerText = `${mins} dakika kaldı...`;
-                if(mins <= 0) {
-                    clearInterval(interval);
-                    battery = 100;
-                    document.getElementById('low-battery-screen').style.display = 'none';
-                    document.getElementById('c-btn').style.display = 'block';
-                    document.getElementById('charge-timer').innerText = "Lütfen 10 dakika bekleyin.";
-                }
-            }, 1000); // 1 saniye = 1 dakika simülasyonu
+        };
+        function attemptUnlock() {
+            if(document.getElementById('check-pass').value === password) unlockOS();
+            else alert("Şifre Yanlış!");
         }
+        function unlockOS() { document.getElementById('lock').style.transform='translateY(-100%)'; document.getElementById('os').style.display='flex'; }
 
-        // 2. GÜNCELLEME SİSTEMİ (5 DAKİKA)
-        function runUpdate() {
-            document.getElementById('win').style.display = 'none';
-            document.getElementById('update-screen').style.display = 'flex';
+        // GÜNCELLEME (20 SN)
+        function startUpdate() {
+            closeApp(); document.getElementById('update-ui').style.display='flex';
             let p = 0;
-            let up = setInterval(() => {
+            let interval = setInterval(() => {
                 p++;
-                document.getElementById('progress-fill').style.width = p + "%";
-                document.getElementById('up-perc').innerText = "%" + p;
+                document.getElementById('p-fill').style.width = p + "%";
                 if(p >= 100) {
-                    clearInterval(up);
+                    clearInterval(interval);
                     version = "V26";
-                    document.getElementById('up-title').innerText = "Sistem Güncellendi!";
-                    setTimeout(() => { document.getElementById('update-screen').style.display = 'none'; render(); }, 2000);
+                    setTimeout(() => { document.getElementById('update-ui').style.display='none'; alert("Güncelleme Tamamlandı!"); }, 1000);
                 }
-            }, 3000); // 3 saniye x 100 = 300 saniye (Tam 5 dakika)
+            }, 200); // 200ms * 100 = 20 saniye
         }
 
-        // 3. UYGULAMA MOTORU
-        function render() {
-            const g = document.getElementById('grid'); g.innerHTML = "";
+        // UYGULAMA MOTORU
+        function renderApps() {
+            const g = document.getElementById('app-grid'); g.innerHTML = "";
             apps.forEach(a => {
                 g.innerHTML += `<div class="app" onclick="openApp('${a.n}')"><div class="app-icon" style="background:${a.c}">${a.i}</div><span>${a.n}</span></div>`;
             });
@@ -135,26 +168,24 @@
             document.getElementById('win-t').innerText = name;
             const b = document.getElementById('win-b');
             document.getElementById('win').style.display = 'flex';
-            
-            if(a.t === 'settings') {
-                b.innerHTML = `<div style="padding:20px;">
-                    <h3>Sistem Bilgisi</h3><p>Sürüm: ${version}</p>
-                    <p>Donanım: MSI Katana GF66 (32GB RAM)</p>
-                    <hr>
-                    ${version === 'V17' ? `<button onclick="runUpdate()" style="width:100%; padding:15px; background:var(--blue); color:white; border:none; border-radius:10px;">V26 Güncellemesini Yükle (5 Dakika)</button>` : `<p style="color:green;">✓ Sistem Güncel</p>`}
+            if(name === 'Ayarlar') {
+                b.innerHTML = `<div style="padding:20px"><h3>Profil: ${user}</h3><p>Sürüm: ${version}</p><hr>
+                <div style="background:#f2f2f7; padding:15px; border-radius:10px; margin-bottom:10px;">Şifre Koruması: ${password ? "Aktif" : "Pasif"}</div>
+                ${version === 'V17' ? `<button class="btn" onclick="startUpdate()">V26 Güncellemesini Başlat (20 Sn)</button>` : `<p style="color:green">✓ Yazılım Güncel</p>`}
+                <button onclick="location.reload()" style="width:100%; margin-top:20px; background:none; border:none; color:red; cursor:pointer">Cihazı Sıfırla</button>
                 </div>`;
-            } else if(a.t === 'tel') {
-                b.innerHTML = `<div style="padding:40px; text-align:center;"><input type="tel" style="width:100%; font-size:30px; text-align:center; border:none; border-bottom:2px solid #ddd;" placeholder="05..."><button class="app-icon" style="background:#2ecc71; margin:20px auto; border:none; color:white;">📞</button></div>`;
-            } else {
-                b.innerHTML = `<iframe src="${a.u}"></iframe>`;
-            }
+            } else if(a.u) { b.innerHTML = `<iframe src="${a.u}"></iframe>`; }
         }
 
+        function toggleCC() { const c = document.getElementById('cc'); c.style.top = c.style.top === '0px' ? '-100%' : '0px'; }
         function closeApp() { document.getElementById('win').style.display = 'none'; }
 
-        // BAŞLANGIÇ
-        setTimeout(() => { document.getElementById('boot').style.display = 'none'; document.getElementById('os').style.display = 'flex'; render(); }, 2000);
-        setInterval(() => { let d = new Date(); document.getElementById('clock').innerText = d.getHours().toString().padStart(2,'0')+":"+d.getMinutes().toString().padStart(2,'0'); }, 1000);
+        // SAAT & PİL
+        setInterval(() => {
+            let d = new Date(); let t = d.getHours().toString().padStart(2,'0')+":"+d.getMinutes().toString().padStart(2,'0');
+            document.getElementById('lock-time').innerText = t; document.getElementById('os-time').innerText = t;
+            if(bat > 0) { bat--; document.getElementById('bat-stat').innerText = `🔋 %${bat}`; }
+        }, 1000);
     </script>
 </body>
 </html>
