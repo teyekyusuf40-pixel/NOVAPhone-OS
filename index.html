@@ -5,161 +5,175 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>NOVAPhone OS</title>
     <style>
-        :root { --mi-blue: #0c64d4; --blur-bg: rgba(0, 0, 0, 0.6); }
-        body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: 'Segoe UI', sans-serif; overflow: hidden; color: white; -webkit-user-select: none; }
+        :root { --mi-blue: #0c64d4; }
+        body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: -apple-system, system-ui, sans-serif; overflow: hidden; color: white; -webkit-user-select: none; }
 
-        /* 1. BOOT SCREEN */
-        #boot-screen { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s; }
-        .ios-spinner { width: 30px; height: 30px; border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid #fff; border-radius: 50%; animation: spin 1s linear infinite; }
+        /* TÜM EKRANLAR GENEL AYAR */
+        .screen { position: fixed; inset: 0; display: none; flex-direction: column; width: 100vw; height: 100vh; }
 
-        /* 2. SETUP SCREEN */
-        #setup-container { position: fixed; inset: 0; background: #fff; color: #000; display: none; flex-direction: column; z-index: 1500; }
-        .step { display: none; flex-direction: column; height: 100%; padding: 40px 20px; box-sizing: border-box; overflow-y: auto; }
+        /* 1. BOOT (Açılış) */
+        #boot-screen { display: flex; z-index: 3000; background: #000; align-items: center; justify-content: center; }
+        .ios-spinner { width: 30px; height: 30px; border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid #fff; border-radius: 50%; animation: spin 1s linear infinite; margin-top: 20px; }
+
+        /* 2. SETUP (Kurulum) */
+        #setup-screen { z-index: 2000; background: #fff; color: #000; }
+        .step { display: none; flex-direction: column; height: 100%; padding: 30px 20px; overflow-y: auto; }
         .step.active { display: flex; }
-        .mi-logo { width: 50px; height: 50px; background: var(--mi-blue); color: white; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-weight: bold; margin: 0 auto 15px; }
-        .next-btn { width: 60px; height: 60px; background: var(--mi-blue); border: none; border-radius: 50%; color: white; font-size: 24px; cursor: pointer; margin: 20px auto; flex-shrink: 0; }
-        .agreement-box { background: #f5f5f5; padding: 15px; border-radius: 10px; font-size: 11px; line-height: 1.8; color: #333; border: 1px solid #ddd; height: 300px; overflow-y: scroll; text-align: left; }
+        .mi-logo { width: 50px; height: 50px; background: var(--mi-blue); color: #fff; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; margin: 0 auto 15px; }
+        .agreement { background: #f5f5f5; padding: 15px; border-radius: 10px; font-size: 11px; height: 250px; overflow-y: auto; border: 1px solid #ddd; margin: 20px 0; text-align: left; line-height: 1.6; }
+        .next-btn { width: 65px; height: 65px; background: var(--mi-blue); border: none; border-radius: 50%; color: white; font-size: 28px; cursor: pointer; margin: 10px auto; }
 
-        /* 3. MAIN SYSTEM */
-        #main-system { width: 100vw; height: 100vh; background: url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853') center/cover; display: none; flex-direction: column; position: relative; }
-        .status-bar { height: 35px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; font-size: 13px; font-weight: bold; background: rgba(0,0,0,0.2); }
-        
-        .app-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; padding: 20px; overflow-y: auto; flex-grow: 1; }
-        .app { display: flex; flex-direction: column; align-items: center; justify-content: center; transform: scale(1); transition: transform 0.1s; }
-        .app:active { transform: scale(0.9); }
-        .app-icon { width: 58px; height: 58px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 4px 8px rgba(0,0,0,0.4); }
-        .app span { font-size: 10px; margin-top: 6px; text-shadow: 1px 1px 2px #000; font-weight: 500; }
+        /* 3. MAIN (Masaüstü) */
+        #main-system { z-index: 1000; background: url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853') center/cover; }
+        .status-bar { height: 40px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; font-size: 14px; font-weight: bold; background: rgba(0,0,0,0.3); }
+        .app-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; padding: 20px; overflow-y: auto; flex: 1; }
+        .app { display: flex; flex-direction: column; align-items: center; transition: 0.1s; }
+        .app:active { opacity: 0.6; }
+        .app-icon { width: 60px; height: 60px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+        .app span { font-size: 11px; margin-top: 5px; text-shadow: 1px 1px 2px #000; }
 
         /* 4. CONTROL CENTER */
-        #control-center { position: absolute; top: -110%; right: 0; width: 100%; height: 95%; background: var(--blur-bg); backdrop-filter: blur(25px); border-bottom-left-radius: 35px; border-bottom-right-radius: 35px; transition: top 0.4s cubic-bezier(0.1, 0.8, 0.2, 1); z-index: 1000; padding: 60px 25px; box-sizing: border-box; }
+        #control-center { position: absolute; top: -110%; right: 0; width: 100%; height: 90%; background: rgba(0,0,0,0.8); backdrop-filter: blur(20px); border-radius: 0 0 30px 30px; transition: 0.4s ease; z-index: 1500; padding: 60px 20px; box-sizing: border-box; }
         #control-center.active { top: 0; }
-        .control-trigger { position: absolute; top: 0; right: 0; width: 120px; height: 40px; z-index: 1100; }
-        .control-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
-        .tile { background: rgba(255,255,255,0.15); height: 75px; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 24px; transition: 0.3s; }
-        .tile.active { background: var(--mi-blue); }
+        .trigger { position: absolute; top: 0; right: 0; width: 100px; height: 40px; z-index: 1600; }
+        .tile-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+        .tile { background: rgba(255,255,255,0.15); height: 75px; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .tile.on { background: var(--mi-blue); }
 
         /* 5. APP WINDOW */
-        #app-window { position: fixed; inset: 0; background: #fff; color: #000; z-index: 1200; display: none; flex-direction: column; animation: appOpen 0.3s forwards; }
+        #app-window { position: fixed; inset: 0; background: #fff; color: #000; z-index: 1800; display: none; flex-direction: column; }
         .app-header { height: 60px; display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid #eee; justify-content: space-between; }
-        .close-app { font-size: 24px; cursor: pointer; color: var(--mi-blue); font-weight: bold; }
 
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        @keyframes appOpen { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
 
     <!-- BOOT -->
-    <div id="boot-screen">
-        <h1 style="letter-spacing: 6px;">NOVAPhone</h1>
+    <div id="boot-screen" class="screen" style="display: flex;">
+        <h1 style="letter-spacing: 5px;">NOVAPhone</h1>
         <div class="ios-spinner"></div>
     </div>
 
     <!-- SETUP -->
-    <div id="setup-container">
-        <div class="step active" id="step1">
+    <div id="setup-screen" class="screen">
+        <div class="step active" id="s1">
             <div class="mi-logo">N</div>
-            <h1 style="text-align:center;">Hoş Geldiniz</h1>
-            <p style="text-align:center; color:#666;">NOVAPhone OS sürüm 1.0.4.26</p>
-            <button class="next-btn" onclick="nextStep()">→</button>
+            <h1 style="text-align:center;">NOVAPhone OS</h1>
+            <p style="text-align:center; color:#666;">Kuruluma Hoş Geldiniz</p>
+            <button class="next-btn" onclick="goStep(2)">→</button>
         </div>
-        <div class="step" id="step2">
-            <h1>Kullanıcı Sözleşmesi</h1>
-            <div class="agreement-box">
-                <b>BÖLÜM 1: GENEL ŞARTLAR</b><br>
-                Bu cihaz Yusuf (Admin) tarafından özel olarak yapılandırılmıştır. NOVAPhone OS kullanımınız süresince tüm yazılım hakları saklıdır. Bu işletim sistemi simülasyonu, maksimum eğlence ve teknik şakalar için tasarlanmıştır.<br><br>
-                <b>BÖLÜM 2: VERİ POLİTİKASI</b><br>
-                Cihazınızdaki veriler (şarj seviyesi, kullanıcı adı vb.) sadece tarayıcı üzerinde yerel olarak işlenir. NOVAPhone sunucularına veri gönderilmez. Gizliliğiniz Admin güvencesindedir.<br><br>
-                <b>BÖLÜM 3: KARDEŞ MODU</b><br>
-                Kardeşlere yapılan şakalar sonucunda oluşabilecek aşırı gülme veya hafif sinir bozulmalarından NOVAPhone OS sorumlu tutulamaz. Yazılımı kullanan kişi bu riskleri kabul etmiş sayılır.<br><br>
-                <b>BÖLÜM 4: SİSTEM GÜVENLİĞİ</b><br>
-                Sistemin içine sızmaya çalışmak, "Admin" yetkilerini çalmak veya kodlarla oynamak (eğer Yusuf değilseniz) sistemin kendini imha etmesine (veya sadece hata vermesine) sebep olabilir.<br><br>
-                <b>BÖLÜM 5: DONANIM</b><br>
-                Harici 5 fanlı soğutucular ve 180Hz ekranlarla tam uyumluluk sağlanmıştır. Sistemin akıcılığı 32GB RAM kapasitesine göre optimize edilmiştir.<br><br>
-                <b>BÖLÜM 6: SONUÇ</b><br>
-                İleri tuşuna basarak NOVAPhone dünyasına girmeyi kabul ediyorsunuz.
+        <div class="step" id="s2">
+            <h1>Sözleşme</h1>
+            <div class="agreement">
+                <b>NOVAPhone Kullanıcı Sözleşmesi</b><br><br>
+                1. Bu sistem Yusuf (Admin) tarafından geliştirilmiştir.<br>
+                2. İzinsiz kopyalanması durumunda Admin yetkileri kısıtlanabilir.<br>
+                3. Bu yazılım gerçek bir telefon simülasyonudur.<br>
+                4. Şaka modları ve donanım optimizasyonları dahildir.<br>
+                5. Kullanıcı verileri asla paylaşılmaz.<br>
+                6. Admin her zaman haklıdır.<br>
+                7. Buraya kadar okuduysan helal olsun.<br>
+                8. Sistem 180Hz ekranlarda yağ gibi akar.<br>
+                9. 32GB RAM desteği otomatik algılanır.<br>
+                10. İyi eğlenceler dileriz!
             </div>
-            <button class="next-btn" onclick="nextStep()">✓</button>
+            <button class="next-btn" onclick="goStep(3)">✓</button>
         </div>
-        <div class="step" id="step3">
-            <h1>Kişiselleştirme</h1>
-            <input type="text" id="inp-user" class="mi-input" placeholder="Admin Adı" value="Admin" style="width:100%; padding:15px; border:1px solid #ddd; border-radius:12px; margin-top:20px;">
-            <button class="next-btn" onclick="finishSetup()">Bitir</button>
+        <div class="step" id="s3">
+            <h1>Kurulum Hazır</h1>
+            <input type="text" id="un" value="Admin" style="width:100%; padding:15px; border-radius:10px; border:1px solid #ddd; margin:20px 0;">
+            <button class="next-btn" onclick="startSystem()">BAŞLAT</button>
         </div>
     </div>
 
     <!-- MAIN SYSTEM -->
-    <div id="main-system">
-        <div class="control-trigger" onclick="toggleControl()"></div>
+    <div id="main-system" class="screen">
+        <div class="trigger" onclick="toggleCC()"></div>
         <div class="status-bar">
-            <span id="os-time">00:00</span>
-            <span>📶 <span id="os-bat">--</span>% 🔋</span>
+            <span id="time">00:00</span>
+            <span>📶 <span id="bat">--</span>% 🔋</span>
         </div>
-
-        <div id="control-center">
-            <div class="control-grid">
-                <div class="tile active">📶</div><div class="tile active">✈️</div><div class="tile">🔦</div><div class="tile">🌙</div>
-                <div class="tile">🔄</div><div class="tile">📍</div><div class="tile">📡</div><div class="tile" onclick="location.reload()">♻️</div>
+        <div id="control-center" onclick="toggleCC()">
+            <div class="tile-grid">
+                <div class="tile on">📶</div><div class="tile on">✈️</div><div class="tile">🔦</div><div class="tile">🌙</div>
             </div>
-            <div style="width:100%; height:45px; background:rgba(255,255,255,0.2); border-radius:15px; margin-top:40px; overflow:hidden;">
-                <div style="width:85%; height:100%; background:#fff;"></div>
+            <div style="width:100%; height:40px; background:rgba(255,255,255,0.1); border-radius:10px; margin-top:30px; overflow:hidden;">
+                <div style="width:80%; height:100%; background:#fff;"></div>
             </div>
-            <p style="text-align:center; margin-top:50px; opacity:0.5;" onclick="toggleControl()">Kapatmak için dokun</p>
+            <p style="text-align:center; margin-top:40px; opacity:0.5;">Kapatmak için dokun</p>
         </div>
-
-        <div class="app-grid" id="app-launcher">
-            <!-- 16 Uygulama -->
-        </div>
+        <div class="app-grid" id="launcher"></div>
     </div>
 
     <!-- APP WINDOW -->
     <div id="app-window">
         <div class="app-header">
-            <h2 id="app-title">Uygulama</h2>
-            <span class="close-app" onclick="closeApp()">X</span>
+            <h2 id="at">Uygulama</h2>
+            <button onclick="closeApp()" style="border:none; background:none; font-size:24px; color:var(--mi-blue);">X</button>
         </div>
-        <div id="app-content" style="padding:20px; font-size:18px;">Uygulama yükleniyor...</div>
+        <div id="ac" style="padding:20px;"></div>
     </div>
 
     <script>
+        // SİSTEM BAŞLATICI (Boot'tan Setup'a)
+        window.onload = () => {
+            setTimeout(() => {
+                document.getElementById('boot-screen').style.display = 'none';
+                document.getElementById('setup-screen').style.display = 'flex';
+            }, 3000); // 3 saniye açılış
+        };
+
+        function goStep(n) {
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+            document.getElementById('s' + n).classList.add('active');
+        }
+
+        function startSystem() {
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('main-system').style.display = 'flex';
+        }
+
+        // UYGULAMALAR
         const apps = [
             {n:'Telefon', i:'📞', c:'#2ecc71'}, {n:'Browser', i:'🌐', c:'#3498db'}, {n:'Galeri', i:'🖼️', c:'#e67e22'}, {n:'Ayarlar', i:'⚙️', c:'#95a5a6'},
-            {n:'Kamera', i:'📷', c:'#34495e'}, {n:'Mesajlar', i:'💬', c:'#1abc9c'}, {n:'Müzik', i:'🎵', c:'#e74c3c'}, {n:'Dosyalar', i:'📁', c:'#f1c40f'},
-            {n:'Oyunlar', i:'🎮', c:'#8e44ad'}, {n:'Notlar', i:'📝', c:'#d35400'}, {n:'Takvim', i:'📅', c:'#c0392b'}, {n:'Harita', i:'📍', c:'#27ae60'},
-            {n:'Hesap', i:'➕', c:'#2980b9'}, {n:'Hava', i:'☁️', c:'#3498db'}, {n:'Saat', i:'⏰', c:'#7f8c8d'}, {n:'Video', i:'🎬', c:'#d35400'}
+            {n:'Mesajlar', i:'💬', c:'#1abc9c'}, {n:'Müzik', i:'🎵', c:'#e74c3c'}, {n:'Dosyalar', i:'📁', c:'#f1c40f'}, {n:'Oyunlar', i:'🎮', c:'#8e44ad'},
+            {n:'Notlar', i:'📝', c:'#d35400'}, {n:'Takvim', i:'📅', c:'#c0392b'}, {n:'Harita', i:'📍', c:'#27ae60'}, {n:'Hesap', i:'➕', c:'#2980b9'},
+            {n:'Hava', i:'☁️', c:'#3498db'}, {n:'Saat', i:'⏰', c:'#7f8c8d'}, {n:'Video', i:'🎬', c:'#d35400'}, {n:'Nova', i:'🚀', c:'#0c64d4'}
         ];
 
-        // Uygulamaları Oluştur
-        const launcher = document.getElementById('app-launcher');
+        const l = document.getElementById('launcher');
         apps.forEach(a => {
-            launcher.innerHTML += `<div class="app" onclick="openApp('${a.n}')"><div class="app-icon" style="background:${a.c}">${a.i}</div><span>${a.n}</span></div>`;
+            l.innerHTML += `<div class="app" onclick="openApp('${a.n}')"><div class="app-icon" style="background:${a.c}">${a.i}</div><span>${a.n}</span></div>`;
         });
 
-        // Pil ve Saat
-        function syncSystem() {
-            const now = new Date();
-            document.getElementById('os-time').innerText = now.getHours().toString().padStart(2,'0')+":"+now.getMinutes().toString().padStart(2,'0');
-            
-            navigator.getBattery().then(bat => {
-                document.getElementById('os-bat').innerText = Math.floor(bat.level * 100);
-            });
-        }
-        setInterval(syncSystem, 1000); syncSystem();
-
-        // Akış Fonksiyonları
-        setTimeout(() => { document.getElementById('boot-screen').style.opacity='0'; setTimeout(()=> { document.getElementById('boot-screen').style.display='none'; document.getElementById('setup-container').style.display='flex'; }, 800); }, 3000);
-        
-        let step = 1;
-        function nextStep() { document.getElementById('step'+step).classList.remove('active'); step++; document.getElementById('step'+step).classList.add('active'); }
-        function finishSetup() { document.getElementById('setup-container').style.display='none'; document.getElementById('main-system').style.display='flex'; }
-        function toggleControl() { document.getElementById('control-center').classList.toggle('active'); }
-
-        function openApp(name) {
+        function openApp(n) {
             document.getElementById('app-window').style.display = 'flex';
-            document.getElementById('app-title').innerText = name;
-            document.getElementById('app-content').innerText = name + " uygulaması NOVAPhone OS için optimize ediliyor. Yakında tam sürümde!";
+            document.getElementById('at').innerText = n;
+            document.getElementById('ac').innerText = n + " uygulaması başarıyla başlatıldı. Sürüm: 1.0.0";
         }
         function closeApp() { document.getElementById('app-window').style.display = 'none'; }
+        function toggleCC() { document.getElementById('control-center').classList.toggle('active'); }
+
+        // SAAT VE PİL (HATA KORUMALI)
+        function tick() {
+            const d = new Date();
+            document.getElementById('time').innerText = d.getHours().toString().padStart(2,'0') + ":" + d.getMinutes().toString().padStart(2,'0');
+            
+            // Pil çekme hatasını engellemek için try-catch
+            try {
+                if(navigator.getBattery) {
+                    navigator.getBattery().then(b => {
+                        document.getElementById('bat').innerText = Math.floor(b.level * 100);
+                    }).catch(() => document.getElementById('bat').innerText = "100");
+                } else {
+                    document.getElementById('bat').innerText = "100";
+                }
+            } catch(e) {
+                document.getElementById('bat').innerText = "100";
+            }
+        }
+        setInterval(tick, 1000); tick();
     </script>
 </body>
 </html>
