@@ -3,156 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NOVAPhone OS v15 Extreme</title>
+    <title>NOVAPhone OS - Gamer Edition</title>
     <style>
-        :root { --blue: #007aff; --app-radius: 18px; --speed: 0.4s; }
-        body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: -apple-system, sans-serif; overflow: hidden; color: white; user-select: none; }
+        :root { --blue: #007aff; --app-radius: 18px; --speed: 0.4s; --neon: #00ffcc; }
+        body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: -apple-system, sans-serif; overflow: hidden; color: white; }
 
-        /* BOOT SCREEN */
+        /* BOOT & SOUND */
         #boot { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .bar-bg { width: 220px; height: 4px; background: #222; border-radius: 10px; margin-top: 30px; overflow: hidden; }
-        #boot-fill { width: 0%; height: 100%; background: #fff; transition: width 0.2s linear; }
+        .bar-bg { width: 250px; height: 4px; background: #222; border-radius: 10px; margin-top: 30px; overflow: hidden; }
+        #boot-fill { width: 0%; height: 100%; background: var(--neon); box-shadow: 0 0 15px var(--neon); }
 
-        /* UPDATE SCREEN (60 SECONDS) */
-        #up-screen { position: fixed; inset: 0; background: #000; z-index: 11000; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .loader { width: 60px; height: 60px; border: 5px solid #222; border-top-color: var(--blue); border-radius: 50%; animation: spin 1s linear infinite; }
+        /* KURULUM EKRANI (UZATILMIŞ) */
+        #setup { position: fixed; inset: 0; background: #050505; z-index: 12000; display: none; flex-direction: column; padding: 40px; justify-content: center; }
+        .setup-step { display: none; animation: fadeIn 1s; }
+        .setup-active { display: block; }
 
-        /* MAIN OS */
-        #os { display: none; height: 100vh; flex-direction: column; background: url('https://images.unsplash.com/photo-1614850523296-d8c1af93d400') center/cover; transition: 1s ease; }
-        .status { height: 44px; display: flex; justify-content: space-between; align-items: center; padding: 0 25px; background: rgba(0,0,0,0.4); backdrop-filter: blur(20px); font-weight: bold; font-size: 14px; }
+        /* NOVA ASİSTAN */
+        #nova-overlay { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); width: 90%; background: rgba(0,0,0,0.9); border: 1px solid var(--neon); border-radius: 20px; padding: 20px; z-index: 15000; transition: 0.5s; box-shadow: 0 0 30px var(--neon); text-align: center; }
+        .nova-wave { width: 50px; height: 50px; background: var(--neon); border-radius: 50%; margin: 0 auto 10px; animation: pulse 1.5s infinite; }
+
+        /* OS */
+        #os { display: none; height: 100vh; flex-direction: column; background: url('https://images.unsplash.com/photo-1550745165-9bc0b252726f') center/cover; }
+        .status { height: 44px; display: flex; justify-content: space-between; align-items: center; padding: 0 25px; background: rgba(0,0,0,0.6); backdrop-filter: blur(20px); font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.1); }
         
-        .viewport { flex: 1; overflow-x: auto; display: flex; scroll-snap-type: x mandatory; }
-        .viewport::-webkit-scrollbar { display: none; }
-        .page { min-width: 100vw; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr); gap: 15px; padding: 25px; box-sizing: border-box; scroll-snap-align: start; }
-        
-        .app { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
-        .app-icon { width: 68px; height: 68px; border-radius: var(--app-radius); display: flex; align-items: center; justify-content: center; font-size: 38px; transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; padding: 25px; overflow-y: auto; flex: 1; }
+        .app { display: flex; flex-direction: column; align-items: center; transition: 0.2s; }
+        .app-icon { width: 68px; height: 68px; border-radius: var(--app-radius); display: flex; align-items: center; justify-content: center; font-size: 38px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
         .app:active { transform: scale(0.9); }
-        .app span { font-size: 11px; margin-top: 8px; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        .app span { font-size: 11px; margin-top: 8px; font-weight: 600; text-align: center; }
 
-        /* WINDOW SYSTEM */
+        /* WINDOW */
         #win { position: fixed; inset: 0; background: #fff; color: #000; z-index: 9000; display: none; flex-direction: column; animation: slideUp 0.5s cubic-bezier(0.1, 0.9, 0.2, 1); }
-        .win-h { height: 65px; display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid #eee; justify-content: space-between; background: #fdfdfd; }
-        .win-b { flex: 1; overflow: auto; }
-        
-        .list { padding: 20px; border-bottom: 1px solid #f2f2f2; display: flex; justify-content: space-between; align-items: center; }
         iframe { width: 100%; height: 100%; border: none; }
 
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     </style>
 </head>
 <body>
 
+    <!-- AÇILIŞ SESİ (Görünmez) -->
+    <audio id="boot-sound" src="https://www.soundjay.com/buttons/sounds/button-20.mp3"></audio>
+
     <div id="boot">
-        <h1 style="letter-spacing:12px; font-weight: 200;">NOVAPHONE</h1>
+        <h1 style="letter-spacing:15px; color: var(--neon); text-shadow: 0 0 10px var(--neon);">NOVA</h1>
         <div class="bar-bg"><div id="boot-fill"></div></div>
     </div>
 
-    <div id="up-screen">
-        <div class="loader"></div>
-        <h2 style="margin-top:25px;">NovaPhone.15 Yükleniyor</h2>
-        <div id="up-timer" style="font-size:32px; font-weight:200; margin-top:15px;">60s</div>
+    <!-- UZATILMIŞ KURULUM -->
+    <div id="setup">
+        <div id="s1" class="setup-step setup-active"><h1>Hoş Geldin Yusuf</h1><p>Sistem dosyaları 32GB RAM için optimize ediliyor...</p></div>
+        <div id="s2" class="setup-step"><h1>Gamer Profili</h1><p>180Hz ekran yenileme hızı ayarlanıyor...</p></div>
+        <div id="s3" class="setup-step"><h1>Nova Asistan</h1><p>"Hey Nova" komutu ses eşleştirme tamamlanıyor...</p></div>
+        <div id="s4" class="setup-step"><h1>Hazır!</h1><button onclick="finishSetup()" style="background:var(--neon); border:none; padding:15px 30px; border-radius:10px; font-weight:bold; cursor:pointer;">SİSTEMİ BAŞLAT</button></div>
+    </div>
+
+    <!-- ASİSTAN -->
+    <div id="nova-overlay">
+        <div class="nova-wave"></div>
+        <b style="color: var(--neon)">Nova Asistan Dinliyor...</b>
+        <p id="nova-text" style="color:white; margin-top:10px; font-style:italic;">"Hey Nova" diyerek bana her şeyi sorabilirsin!</p>
     </div>
 
     <div id="os">
         <div class="status">
             <span id="clock">00:00</span>
-            <div style="display:flex; gap:8px;">📶 5G <span id="bat">--</span>% 🔋</div>
+            <div style="display:flex; gap:8px; color:var(--neon)">180Hz | 32GB RAM</div>
         </div>
-        <div class="viewport">
-            <div class="page" id="p1"></div>
-            <div class="page" id="p2"></div>
-        </div>
+        <div class="grid" id="main-grid"></div>
     </div>
 
     <div id="win">
-        <div class="win-h">
-            <h2 id="win-t" style="margin:0; font-weight: 700;">Uygulama</h2>
-            <button onclick="closeApp()" style="border:none; background:#f0f0f0; padding:10px 20px; border-radius:25px; color:var(--blue); font-weight:bold;">Kapat</button>
+        <div style="height:60px; display:flex; align-items:center; padding:0 20px; border-bottom:1px solid #eee; justify-content:space-between; background:#111; color:white;">
+            <h3 id="win-t" style="margin:0">Oyun</h3>
+            <button onclick="closeApp()" style="background:red; color:white; border:none; padding:8px 15px; border-radius:10px; font-weight:bold;">X</button>
         </div>
-        <div id="win-b" class="win-b"></div>
+        <div id="win-b" style="flex:1; overflow:hidden"></div>
     </div>
 
     <script>
-        let isUpdated = false;
-        const allApps = [
-            {n:'NurıWEB', i:'🌐', c:'#fff'}, {n:'Kamera', i:'📷', c:'#333'}, {n:'Ayarlar', i:'⚙️', c:'#8e8e93'}, 
-            {n:'YouTube', i:'🎬', c:'#ff0000'}, {n:'Sporift', i:'🎵', c:'#1DB954'}, {n:'Notlar', i:'📝', c:'#ffcc00'},
-            {n:'Galeri', i:'🖼️', c:'#ff9500'}, {n:'Harita', i:'📍', c:'#34c759'}, {n:'Hava', i:'☁️', c:'#5ac8fa'},
-            {n:'Hesap', i:'➕', c:'#ff9500'}, {n:'Telefon', i:'📞', c:'#2ecc71'}, {n:'Mesajlar', i:'💬', c:'#4cd964'},
-            {n:'Dosyalar', i:'📁', c:'#5ac8fa'}, {n:'Saat', i:'⏰', c:'#000'}, {n:'Borsa', i:'📈', c:'#2ecc71'}, {n:'NovaLab', i:'🚀', c:'#5856d6'}
+        const apps = [
+            {n:'2048', i:'🧩', c:'#edc22e', u:'https://play2048.co/'},
+            {n:'Tetris', i:'🧱', c:'#00f0f0', u:'https://tetris.com/play-tetris'},
+            {n:'Pacman', i:'🟡', c:'#ffff00', u:'https://www.google.com/logos/2010/pacman10-i.html'},
+            {n:'Hextris', i:'🔷', c:'#f39c12', u:'https://hextris.io/'},
+            {n:'Sporift', i:'🎵', c:'#1DB954', u:'music'},
+            {n:'YouTube', i:'🎬', c:'#ff0000', u:'https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1'},
+            {n:'Ayarlar', i:'⚙️', c:'#8e8e93', u:'settings'},
+            {n:'NurıWEB', i:'🌐', c:'#fff', u:'browser'},
+            {n:'Kamera', i:'📷', c:'#333', u:'camera'},
+            {n:'Notlar', i:'📝', c:'#ffcc00', u:'notes'}
         ];
 
-        let bootP = 0;
-        const bootInt = setInterval(() => {
-            bootP += 10;
-            document.getElementById('boot-fill').style.width = bootP + "%";
-            if(bootP >= 100) { clearInterval(bootInt); document.getElementById('boot').style.display='none'; document.getElementById('os').style.display='flex'; renderHome(); }
-        }, 100);
+        // BOOT & SOUND
+        let bp = 0;
+        const bInt = setInterval(() => {
+            bp += 2;
+            document.getElementById('boot-fill').style.width = bp + "%";
+            if(bp >= 100) { 
+                clearInterval(bInt);
+                document.getElementById('boot-sound').play();
+                document.getElementById('boot').style.display='none';
+                document.getElementById('setup').style.display='flex';
+                runSetup();
+            }
+        }, 50);
 
-        function renderHome() {
-            const p1 = document.getElementById('p1'); const p2 = document.getElementById('p2');
-            p1.innerHTML = ""; p2.innerHTML = "";
-            allApps.forEach((a, i) => {
-                const html = `<div class="app" onclick="openApp('${a.n}')"><div class="app-icon" style="background:${a.c}">${a.i}</div><span>${a.n}</span></div>`;
-                (i < 12 ? p1 : p2).innerHTML += html;
+        function runSetup() {
+            for(let i=1; i<=3; i++) {
+                setTimeout(() => {
+                    document.querySelector('.setup-active').classList.remove('setup-active');
+                    document.getElementById('s'+(i+1)).classList.add('setup-active');
+                }, i * 2500);
+            }
+        }
+
+        function finishSetup() {
+            document.getElementById('setup').style.display='none';
+            document.getElementById('os').style.display='flex';
+            renderApps();
+            startNovaListener();
+        }
+
+        function renderApps() {
+            const g = document.getElementById('main-grid');
+            apps.forEach(a => {
+                g.innerHTML += `<div class="app" onclick="openApp('${a.n}', '${a.u}')"><div class="app-icon" style="background:${a.c}">${a.i}</div><span>${a.n}</span></div>`;
             });
         }
 
-        function openApp(name) {
-            document.getElementById('win-t').innerText = name;
+        function openApp(n, u) {
+            document.getElementById('win-t').innerText = n;
             const b = document.getElementById('win-b');
             document.getElementById('win').style.display = 'flex';
-            b.innerHTML = "";
-
-            if(name === 'YouTube') {
-                b.innerHTML = `<iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" allow="autoplay"></iframe>`;
-            } else if(name === 'Sporift') {
-                b.innerHTML = `<div style="padding:20px; background:#191414; color:white; height:100%;">
-                    <h3>Sporift Premium</h3>
-                    <div style="background:#282828; padding:15px; border-radius:10px; margin-bottom:10px; display:flex; align-items:center; gap:15px;">
-                        <div style="width:50px; height:50px; background:var(--blue); border-radius:5px; font-size:30px; text-align:center;">🎧</div>
-                        <div><b>Admin Mix #1</b><br><small>Yusuf Özel</small></div>
-                    </div>
-                    <div style="background:#282828; padding:15px; border-radius:10px; display:flex; align-items:center; gap:15px;">
-                        <div style="width:50px; height:50px; background:#1DB954; border-radius:5px; font-size:30px; text-align:center;">🔥</div>
-                        <div><b>FPS Focus</b><br><small>180Hz Beats</small></div>
-                    </div>
-                    <div style="position:absolute; bottom:20px; left:20px; right:20px; text-align:center;">
-                        <input type="range" style="width:100%; accent-color:#1DB954;">
-                        <div style="font-size:30px; margin-top:10px;">⏮️ ⏸️ ⏭️</div>
-                    </div>
-                </div>`;
-            } else if(name === 'Ayarlar') {
-                const settings = isUpdated ? ['Sürüm: NovaPhone.15 (Güncel)', 'RAM: 32GB LPDDR4', 'Ekran: 180Hz Pro', 'Depolama: 1TB SSD', 'Geliştirici: Yusuf'] : ['Yazılım Güncelleme (NovaPhone.15)', 'Cihaz Hakkında', 'Ekran ve Parlaklık', 'Ses'];
-                settings.forEach(s => b.innerHTML += `<div class="list" onclick="handleSet('${s}')"><span>${s}</span><span>></span></div>`);
-            } else if(name === 'NurıWEB') {
-                b.innerHTML = `<iframe src="https://www.bing.com"></iframe>`;
-            } else if(name === 'Notlar') {
-                b.innerHTML = `<textarea style="width:100%; height:100%; padding:20px; border:none; outline:none; font-size:18px;" placeholder="Notunuzu buraya girin..."></textarea>`;
+            if(u === 'camera') {
+                b.innerHTML = `<video id="v" autoplay style="width:100%; height:100%; object-fit:cover"></video>`;
+                navigator.mediaDevices.getUserMedia({video:true}).then(s => document.getElementById('v').srcObject = s);
+            } else if(u === 'settings') {
+                b.innerHTML = `<div style="padding:20px"><h3>Sistem Bilgisi</h3><hr><p>Cihaz: MSI Katana GF66 (Nova Edition)</p><p>RAM: 32GB DDR4</p><p>Ekran: 180Hz Pro Panel</p><p>OS: NovaPhone.15.0.1</p></div>`;
+            } else if(u === 'notes') {
+                b.innerHTML = `<textarea style="width:100%; height:100%; padding:20px; border:none; font-size:18px;" placeholder="Admin notları..."></textarea>`;
             } else {
-                b.innerHTML = `<div style="padding:40px; text-align:center;"><h2>${name}</h2><p>Admin Yusuf için %100 optimize edildi.</p></div>`;
+                b.innerHTML = `<iframe src="${u}"></iframe>`;
             }
         }
 
-        function handleSet(s) {
-            if(s.includes('Güncelleme') && !isUpdated) {
-                document.getElementById('win').style.display = 'none';
-                document.getElementById('up-screen').style.display = 'flex';
-                let t = 60;
-                const timer = setInterval(() => {
-                    t--; document.getElementById('up-timer').innerText = t + "s";
-                    if(t <= 0) {
-                        clearInterval(timer); isUpdated = true;
-                        document.getElementById('up-screen').style.display = 'none';
-                        document.documentElement.style.setProperty('--app-radius', '50%');
-                        document.documentElement.style.setProperty('--speed', '0.8s');
-                        document.getElementById('os').style.background = "url('https://images.unsplash.com/photo-1635322966219-b75ed372eb3c') center/cover";
-                        alert("Sistem NovaPhone.15'e güncellendi!");
+        // ASİSTAN "HEY NOVA" MANTIĞI
+        function startNovaListener() {
+            window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if(window.SpeechRecognition) {
+                const rec = new SpeechRecognition();
+                rec.lang = 'tr-TR';
+                rec.onresult = (e) => {
+                    const text = e.results[0][0].transcript.toLowerCase();
+                    if(text.includes('hey nova')) {
+                        activateNova(text.replace('hey nova', ''));
                     }
-                }, 1000);
+                };
+                rec.onend = () => rec.start();
+                rec.start();
             }
+        }
+
+        function activateNova(q) {
+            const o = document.getElementById('nova-overlay');
+            o.style.bottom = '20px';
+            if(q.trim() !== "") {
+                document.getElementById('nova-text').innerText = "Düşünüyorum: " + q;
+                setTimeout(() => {
+                    document.getElementById('nova-text').innerText = "Cevap: Merhaba Admin Yusuf! " + q + " sorunu MSI Katana üzerinden analiz ettim. Her şey yolunda!";
+                }, 2000);
+            }
+            setTimeout(() => o.style.bottom = '-150px', 7000);
         }
 
         function closeApp() { document.getElementById('win').style.display = 'none'; }
