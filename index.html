@@ -3,144 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NOVAPhone OS v15 Pro</title>
+    <title>NOVAPhone OS v15 Ultra</title>
     <style>
-        :root { --blue: #007aff; --app-radius: 16px; --speed: 0.3s; }
-        body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: -apple-system, sans-serif; overflow: hidden; color: white; }
+        :root { --blue: #007aff; --app-radius: 18px; --speed: 0.4s; }
+        body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: -apple-system, sans-serif; overflow: hidden; color: white; user-select: none; }
 
-        /* BOOT */
+        /* BOOT SCREEN */
         #boot { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .bar-bg { width: 200px; height: 3px; background: #333; border-radius: 10px; margin-top: 25px; }
-        #boot-fill { width: 0%; height: 100%; background: #fff; }
+        .bar-bg { width: 220px; height: 4px; background: #222; border-radius: 10px; margin-top: 30px; overflow: hidden; }
+        #boot-fill { width: 0%; height: 100%; background: #fff; transition: width 0.2s linear; }
 
-        /* UPDATE SCREEN */
+        /* UPDATE SCREEN (1 MINUTE) */
         #up-screen { position: fixed; inset: 0; background: #000; z-index: 11000; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .loader { width: 50px; height: 50px; border: 4px solid #333; border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; }
+        .loader { width: 60px; height: 60px; border: 5px solid #222; border-top-color: var(--blue); border-radius: 50%; animation: spin 1s linear infinite; }
 
-        /* OS */
-        #os { display: none; height: 100vh; flex-direction: column; background: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe') center/cover; transition: background var(--speed); }
-        .status { height: 44px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; background: rgba(0,0,0,0.4); backdrop-filter: blur(15px); }
+        /* MAIN OS */
+        #os { display: none; height: 100vh; flex-direction: column; background: url('https://images.unsplash.com/photo-1614850523296-d8c1af93d400') center/cover; transition: 1s ease; }
+        .status { height: 44px; display: flex; justify-content: space-between; align-items: center; padding: 0 25px; background: rgba(0,0,0,0.4); backdrop-filter: blur(20px); font-weight: bold; font-size: 14px; }
         
-        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 30px; }
-        .app { display: flex; flex-direction: column; align-items: center; transition: var(--speed); }
-        .app-icon { width: 65px; height: 65px; border-radius: var(--app-radius); display: flex; align-items: center; justify-content: center; font-size: 35px; transition: border-radius 0.6s ease; box-shadow: 0 8px 15px rgba(0,0,0,0.3); }
-        .app span { font-size: 11px; margin-top: 8px; font-weight: 500; }
+        .viewport { flex: 1; overflow-x: auto; display: flex; scroll-snap-type: x mandatory; scroll-behavior: smooth; }
+        .viewport::-webkit-scrollbar { display: none; }
+        .page { min-width: 100vw; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr); gap: 15px; padding: 25px; box-sizing: border-box; scroll-snap-align: start; }
+        
+        .app { display: flex; flex-direction: column; align-items: center; cursor: pointer; transform: translateZ(0); }
+        .app-icon { width: 68px; height: 68px; border-radius: var(--app-radius); display: flex; align-items: center; justify-content: center; font-size: 38px; transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .app:active { transform: scale(0.9); }
+        .app span { font-size: 11px; margin-top: 8px; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
 
-        /* WINDOW */
-        #win { position: fixed; inset: 0; background: #fff; color: #000; z-index: 9000; display: none; flex-direction: column; animation: up 0.4s ease-out; }
-        .win-h { height: 60px; display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid #eee; justify-content: space-between; }
-        .win-b { flex: 1; overflow: auto; }
+        /* WINDOW SYSTEM */
+        #win { position: fixed; inset: 0; background: #fff; color: #000; z-index: 9000; display: none; flex-direction: column; animation: slideUp 0.5s cubic-bezier(0.1, 0.9, 0.2, 1); }
+        .win-h { height: 65px; display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid #eee; justify-content: space-between; background: #fdfdfd; }
+        .win-b { flex: 1; overflow: auto; position: relative; }
         
-        .list { padding: 18px 20px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; }
+        .list { padding: 20px; border-bottom: 1px solid #f2f2f2; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; }
+        .list:active { background: #f9f9f9; }
         iframe { width: 100%; height: 100%; border: none; }
 
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        @keyframes up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     </style>
 </head>
 <body>
 
+    <!-- BOOT -->
     <div id="boot">
-        <h1 style="letter-spacing:10px">NOVAPHONE</h1>
+        <h1 style="letter-spacing:12px; font-weight: 200;">NOVAPHONE</h1>
         <div class="bar-bg"><div id="boot-fill"></div></div>
     </div>
 
+    <!-- UPDATE MODAL -->
     <div id="up-screen">
         <div class="loader"></div>
-        <h2 id="up-msg" style="margin-top:20px">NovaPhone.15 Yükleniyor...</h2>
-        <p id="up-timer" style="font-size:24px; font-weight:bold">60s</p>
+        <h2 style="margin-top:25px; letter-spacing: 1px;">NovaPhone.15 Yükleniyor</h2>
+        <p style="color:#666;">Sistem çekirdeği güncelleniyor...</p>
+        <div id="up-timer" style="font-size:32px; font-weight:200; margin-top:15px;">60s</div>
     </div>
 
+    <!-- OS LAYER -->
     <div id="os">
         <div class="status">
             <span id="clock">00:00</span>
-            <span>📶 32GB RAM 🔋</span>
+            <div style="display:flex; gap:8px;">📶 5G <span id="bat">--</span>% 🔋</div>
         </div>
-        <div class="grid" id="main-grid"></div>
+        <div class="viewport">
+            <div class="page" id="p1"></div>
+            <div class="page" id="p2"></div>
+        </div>
     </div>
 
+    <!-- WINDOW LAYER -->
     <div id="win">
         <div class="win-h">
-            <h3 id="win-t" style="margin:0">App</h3>
-            <button onclick="closeApp()" style="border:none; background:#eee; padding:8px 15px; border-radius:15px; color:var(--blue)">Kapat</button>
+            <h2 id="win-t" style="margin:0; font-weight: 700;">App</h2>
+            <button onclick="closeApp()" style="border:none; background:#f0f0f0; padding:10px 20px; border-radius:25px; color:var(--blue); font-weight:bold; font-size: 15px;">Kapat</button>
         </div>
         <div id="win-b" class="win-b"></div>
     </div>
 
     <script>
-        let isUpdated = false; 
-        const apps = [
+        let isUpdated = false;
+        const allApps = [
             {n:'NurıWEB', i:'🌐', c:'#fff'}, {n:'Kamera', i:'📷', c:'#333'}, {n:'Ayarlar', i:'⚙️', c:'#8e8e93'}, 
-            {n:'YouTube', i:'🎬', c:'#ff0000'}, {n:'Notlar', i:'📝', c:'#ffcc00'}, {n:'Harita', i:'📍', c:'#34c759'},
-            {n:'Hava', i:'☁️', c:'#5ac8fa'}, {n:'Müzik', i:'🎵', c:'#ff2d55'}
+            {n:'YouTube', i:'🎬', c:'#ff0000'}, {n:'Harita', i:'📍', c:'#34c759'}, {n:'Galeri', i:'🖼️', c:'#ff9500'},
+            {n:'Müzik', i:'🎵', c:'#ff2d55'}, {n:'Hesap', i:'➕', c:'#ff9500'}, {n:'Hava', i:'☁️', c:'#5ac8fa'},
+            {n:'Notlar', i:'📝', c:'#ffcc00'}, {n:'Dosyalar', i:'📁', c:'#5ac8fa'}, {n:'Mesajlar', i:'💬', c:'#4cd964'},
+            {n:'Telefon', i:'📞', c:'#2ecc71'}, {n:'Saat', i:'⏰', c:'#000'}, {n:'Borsa', i:'📈', c:'#2ecc71'}, {n:'NovaLab', i:'🚀', c:'#5856d6'}
         ];
 
-        // BOOT
-        let p = 0;
-        const i = setInterval(() => {
-            p += 5;
-            document.getElementById('boot-fill').style.width = p + "%";
-            if(p>=100) { clearInterval(i); document.getElementById('boot').style.display='none'; document.getElementById('os').style.display='flex'; render(); }
-        }, 100);
+        // BOOT LOGIC
+        let bootP = 0;
+        const bootInt = setInterval(() => {
+            bootP += Math.random() * 10;
+            document.getElementById('boot-fill').style.width = bootP + "%";
+            if(bootP >= 100) {
+                clearInterval(bootInt);
+                document.getElementById('boot').style.display = 'none';
+                document.getElementById('os').style.display = 'flex';
+                renderHome();
+            }
+        }, 150);
 
-        function render() {
-            const g = document.getElementById('main-grid');
-            g.innerHTML = "";
-            apps.forEach(a => {
-                g.innerHTML += `<div class="app" onclick="openApp('${a.n}')"><div class="app-icon" style="background:${a.c}">${a.i}</div><span>${a.n}</span></div>`;
+        function renderHome() {
+            const p1 = document.getElementById('p1');
+            const p2 = document.getElementById('p2');
+            p1.innerHTML = ""; p2.innerHTML = "";
+            allApps.forEach((a, i) => {
+                const html = `<div class="app" onclick="openApp('${a.n}')"><div class="app-icon" style="background:${a.c}">${a.i}</div><span>${a.n}</span></div>`;
+                (i < 12 ? p1 : p2).innerHTML += html;
             });
         }
 
-        function openApp(n) {
-            document.getElementById('win-t').innerText = n;
+        function openApp(name) {
+            document.getElementById('win-t').innerText = name;
             const b = document.getElementById('win-b');
             document.getElementById('win').style.display = 'flex';
             b.innerHTML = "";
 
-            if(n === 'Ayarlar') {
-                const s = isUpdated ? ['Sürüm: NovaPhone.15 (Güncel)', 'RAM: 32GB', 'Ekran: 180Hz', 'Depolama: 1TB'] : ['Yazılım Güncelleme (NovaPhone.15)', 'RAM: 32GB', 'Ekran: 180Hz'];
-                s.forEach(opt => {
-                    b.innerHTML += `<div class="list" onclick="act('${opt}')"><span>${opt}</span><span>></span></div>`;
+            if(name === 'Ayarlar') {
+                const settings = isUpdated ? 
+                ['Sürüm: NovaPhone.15 (En Güncel)', 'RAM: 32GB DDR4', 'Ekran: 180Hz Pro', 'İşlemci: Katana Turbo', 'Depolama: 1TB SSD', 'FaceID: Aktif', 'Karanlık Mod: Açık', 'Pil Sağlığı: %100', 'Geliştirici: Admin Yusuf', 'Cihazı Sıfırla'] : 
+                ['<b>Yazılım Güncelleme (NovaPhone.15)</b>', 'RAM: 32GB', 'Ekran: 180Hz', 'Depolama: 1TB', 'Cihaz Hakkında', 'Wi-Fi', 'Bluetooth', 'Ses ve Dokunuş'];
+                
+                settings.forEach(s => {
+                    b.innerHTML += `<div class="list" onclick="handleSet('${s}')"><span>${s}</span><span>></span></div>`;
                 });
-            } else if(n === 'NurıWEB') {
-                b.innerHTML = `<iframe src="https://www.bing.com"></iframe>`;
-            } else if(n === 'Kamera') {
-                b.innerHTML = `<video id="v" autoplay style="width:100%; height:100%; object-fit:cover"></video>`;
-                navigator.mediaDevices.getUserMedia({video:true}).then(s => document.getElementById('v').srcObject = s);
-            } else if(n === 'YouTube') {
-                b.innerHTML = `<iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ"></iframe>`;
-            } else if(n === 'Notlar') {
-                b.innerHTML = `<textarea style="width:100%; height:100%; padding:20px; border:none; outline:none; font-size:18px;" placeholder="Notunuzu yazın..."></textarea>`;
+            } else if(name === 'NurıWEB') {
+                b.innerHTML = `<div style="padding:10px; background:#eee; display:flex; gap:5px;"><input id="url" style="flex:1; padding:10px; border-radius:8px; border:1px solid #ccc;" placeholder="Arama yap..."><button onclick="search()" style="background:var(--blue); color:white; border:none; padding:10px; border-radius:8px;">Git</button></div><iframe id="ifr" src="https://www.bing.com"></iframe>`;
+            } else if(name === 'Kamera') {
+                b.innerHTML = `<video id="cam" autoplay playsinline style="width:100%; height:100%; object-fit:cover; background:#000;"></video>`;
+                navigator.mediaDevices.getUserMedia({video:true}).then(s => document.getElementById('cam').srcObject = s).catch(() => b.innerHTML = "<p style='padding:20px'>Kamera erişimi reddedildi.</p>");
+            } else if(name === 'YouTube') {
+                b.innerHTML = `<iframe src="https://www.youtube.com/embed?listType=search&list=trending"></iframe>`;
+            } else if(name === 'Harita') {
+                b.innerHTML = `<iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d12000!2d29.0!3d41.0!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1str!2str!4v12345"></iframe>`;
+            } else if(name === 'Galeri') {
+                for(let i=1; i<=12; i++) b.innerHTML += `<img src="https://picsum.photos/400/400?random=${i}" style="width:33.33%; height:120px; object-fit:cover; float:left; border:1px solid #fff; box-sizing:border-box;">`;
+            } else if(name === 'Notlar') {
+                b.innerHTML = `<textarea style="width:100%; height:100%; padding:20px; border:none; outline:none; font-size:20px; font-family:inherit;" placeholder="Notunuzu buraya yazın, Admin Yusuf..."></textarea>`;
+            } else if(name === 'Hava') {
+                b.innerHTML = `<iframe src="https://www.mgm.gov.tr/tahmin/il-ve-ilceler.aspx?il=Istanbul"></iframe>`;
             } else {
-                b.innerHTML = `<div style="padding:40px; text-align:center;"><h2>${n} Aktif</h2><p>Tüm fonksiyonlar Yusuf için optimize edildi.</p></div>`;
+                b.innerHTML = `<div style="padding:40px; text-align:center;"><h2>${name}</h2><p>Fonksiyonel modül %100 kapasite ile çalışıyor.</p><div style="font-size:50px;">⚡</div></div>`;
             }
         }
 
-        function act(opt) {
-            if(opt.includes('Güncelleme') && !isUpdated) {
+        function handleSet(s) {
+            if(s.includes('Güncelleme') && !isUpdated) {
                 document.getElementById('win').style.display = 'none';
                 document.getElementById('up-screen').style.display = 'flex';
-                let t = 60;
-                const u = setInterval(() => {
-                    t--;
-                    document.getElementById('up-timer').innerText = t + "s";
-                    if(t <= 0) {
-                        clearInterval(u);
+                let time = 60;
+                const timer = setInterval(() => {
+                    time--;
+                    document.getElementById('up-timer').innerText = time + "s";
+                    if(time <= 0) {
+                        clearInterval(timer);
                         isUpdated = true;
                         document.getElementById('up-screen').style.display = 'none';
                         document.documentElement.style.setProperty('--app-radius', '50%');
-                        document.documentElement.style.setProperty('--speed', '0.7s');
+                        document.documentElement.style.setProperty('--speed', '0.8s');
                         document.getElementById('os').style.background = "url('https://images.unsplash.com/photo-1635322966219-b75ed372eb3c') center/cover";
-                        alert("Güncelleme Tamamlandı! Artık sistem en güncel sürümde.");
+                        alert("Sistem Başarıyla Güncellendi!\n- Yuvarlak İkonlar Aktif\n- Akıcı Animasyonlar Devrede");
                     }
                 }, 1000);
-            } else if(isUpdated && opt.includes('Güncel')) {
-                alert("Zaten en son sürümü kullanıyorsunuz.");
+            } else if(s.includes('Sıfırla')) {
+                if(confirm("Tüm sistem verileri sıfırlansın mı?")) location.reload();
             }
         }
 
+        function search() {
+            const val = document.getElementById('url').value;
+            document.getElementById('ifr').src = "https://www.bing.com/search?q=" + encodeURIComponent(val);
+        }
+
         function closeApp() {
-            const v = document.getElementById('v');
+            const v = document.getElementById('cam');
             if(v && v.srcObject) v.srcObject.getTracks().forEach(t => t.stop());
             document.getElementById('win').style.display = 'none';
         }
@@ -148,6 +184,7 @@
         setInterval(() => {
             const d = new Date();
             document.getElementById('clock').innerText = d.getHours().toString().padStart(2,'0')+":"+d.getMinutes().toString().padStart(2,'0');
+            try { navigator.getBattery().then(bat => document.getElementById('bat').innerText = Math.floor(bat.level*100)); } catch(e) {}
         }, 1000);
     </script>
 </body>
