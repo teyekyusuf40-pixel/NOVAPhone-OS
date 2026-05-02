@@ -5,134 +5,139 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>NOVAPhone OS</title>
     <style>
-        :root { --mi-blue: #0c64d4; --bg-light: #ffffff; }
-        body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: 'Segoe UI', Roboto, sans-serif; overflow: hidden; }
+        :root { --mi-blue: #0c64d4; --blur-bg: rgba(255, 255, 255, 0.2); }
+        body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
 
-        /* AÇILIŞ (iOS) */
-        #boot-screen {
-            position: fixed; inset: 0; background: #000; z-index: 1000;
+        /* ANA EKRAN */
+        #main-system {
+            width: 100vw; height: 100vh;
+            background: url('https://images.unsplash.com/photo-1614850523296-d8c1af93d400') center/cover;
+            display: none; flex-direction: column; position: relative;
+        }
+
+        /* ÜST DURUM ÇUBUĞU */
+        .status-bar {
+            height: 35px; display: flex; justify-content: space-between; align-items: center;
+            padding: 0 20px; color: white; font-size: 14px; font-weight: 500; z-index: 10;
+        }
+
+        /* UYGULAMALAR */
+        .app-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+            padding: 30px 20px;
+        }
+        .app { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+        .app-icon {
+            width: 60px; height: 60px; border-radius: 15px; 
+            display: flex; align-items: center; justify-content: center;
+            font-size: 30px; margin-bottom: 5px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .app span { color: white; font-size: 11px; text-shadow: 1px 1px 2px #000; }
+
+        /* KONTROL MERKEZİ (SAĞ ÜSTTEN KAYAN) */
+        #control-center {
+            position: absolute; top: -100%; right: 0; width: 100%; height: 90%;
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(25px);
+            border-bottom-left-radius: 30px; border-bottom-right-radius: 30px;
+            transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+            z-index: 100; padding: 50px 20px 20px; box-sizing: border-box;
+        }
+        #control-center.active { top: 0; }
+
+        .control-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 20px; }
+        .control-tile { 
+            background: var(--blur-bg); height: 80px; border-radius: 20px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.8s;
+            font-size: 20px; color: white;
         }
-        .ios-spinner { width: 30px; height: 30px; border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid #fff; border-radius: 50%; animation: spin 1s linear infinite; }
+        .control-tile.on { background: var(--mi-blue); }
 
-        /* KURULUM (XIAOMI STİLİ) */
-        #setup-container {
-            position: fixed; inset: 0; background: var(--bg-light); color: #000;
-            display: none; flex-direction: column; z-index: 900;
+        .brightness-slider { width: 100%; height: 40px; background: var(--blur-bg); border-radius: 10px; margin-top: 30px; position: relative; overflow: hidden; }
+        .brightness-level { width: 70%; height: 100%; background: #fff; }
+
+        /* KAPATMA ÇİZGİSİ */
+        .close-handle { width: 40px; height: 5px; background: #666; border-radius: 5px; margin: 20px auto; }
+
+        /* DOCK (ALT PANEL) */
+        .dock {
+            margin-top: auto; margin-bottom: 15px; align-self: center;
+            width: 92%; height: 85px; background: var(--blur-bg);
+            backdrop-filter: blur(15px); border-radius: 25px;
+            display: flex; justify-content: space-around; align-items: center;
         }
-        .step { display: none; flex-direction: column; height: 100%; padding: 40px 20px; box-sizing: border-box; }
-        .active { display: flex; }
 
-        .header { text-align: center; margin-bottom: 40px; }
-        .mi-logo { width: 50px; height: 50px; background: var(--mi-blue); color: white; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-weight: bold; margin: 0 auto 20px; }
-        
-        h1 { font-size: 24px; font-weight: 500; margin: 0; }
-        p { color: #666; font-size: 14px; margin-top: 8px; }
-
-        /* Form Elemanları */
-        .options-list { width: 100%; border: 1px solid #eee; border-radius: 15px; overflow: hidden; }
-        .option { padding: 18px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; cursor: pointer; }
-        .option:last-child { border-bottom: none; }
-        .option:active { background: #f0f0f0; }
-
-        .mi-input { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 12px; background: #f9f9f9; font-size: 16px; box-sizing: border-box; margin-top: 20px; }
-        
-        .agreement { height: 200px; overflow-y: scroll; background: #f5f5f5; padding: 15px; font-size: 12px; line-height: 1.6; border-radius: 10px; text-align: left; }
-
-        /* Footer / Button */
-        .footer { margin-top: auto; display: flex; justify-content: center; padding-bottom: 30px; }
-        .next-btn { width: 65px; height: 65px; background: var(--mi-blue); border: none; border-radius: 50%; color: white; font-size: 28px; cursor: pointer; box-shadow: 0 4px 20px rgba(12,100,212,0.3); }
-
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+        /* GÖRÜNMEZ TETİKLEYİCİ (SAĞ ÜST) */
+        #drag-trigger {
+            position: absolute; top: 0; right: 0; width: 100px; height: 40px;
+            z-index: 200; cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
-    <div id="boot-screen">
-        <h1 style="color:white; margin-bottom: 30px; letter-spacing: 3px;">NOVAPhone</h1>
-        <div class="ios-spinner"></div>
-    </div>
+    <!-- Kurulum ve Boot ekranları burada (Önceki kodlarınla aynı, sadece finishSetup'ı güncelleyeceğiz) -->
+    <!-- ... (Boot ve Setup kodlarını buraya eklediğini varsayıyorum) ... -->
 
-    <div id="setup-container">
-        
-        <!-- Adım 1: Dil Seçimi -->
-        <div class="step active" id="step1">
-            <div class="header"><div class="mi-logo">N</div><h1>Dil Seçin</h1><p>Sistemi hangi dilde kullanmak istersiniz?</p></div>
-            <div class="options-list">
-                <div class="option" onclick="nextStep()">Türkçe <span>></span></div>
-                <div class="option" onclick="nextStep()">English <span>></span></div>
-                <div class="option" onclick="nextStep()">Deutsch <span>></span></div>
+    <div id="main-system">
+        <!-- Sağ Üstten Kaydırma Alanı -->
+        <div id="drag-trigger" onclick="toggleControl()"></div>
+
+        <div class="status-bar">
+            <span id="os-time">19:23</span>
+            <span>📶 🔋 98%</span>
+        </div>
+
+        <div id="control-center">
+            <div class="control-grid">
+                <div class="control-tile on">✈️</div>
+                <div class="control-tile on">📶</div>
+                <div class="control-tile">📡</div>
+                <div class="control-tile">🔦</div>
+                <div class="control-tile">🌙</div>
+                <div class="control-tile">🔄</div>
+                <div class="control-tile">📍</div>
+                <div class="control-tile">⚙️</div>
             </div>
+            <div class="brightness-slider"><div class="brightness-level"></div></div>
+            <div class="close-handle" onclick="toggleControl()"></div>
         </div>
 
-        <!-- Adım 2: Bölge Seçimi -->
-        <div class="step" id="step2">
-            <div class="header"><h1>Bölge Seçin</h1><p>Hizmetleri optimize etmek için bölgenizi seçin.</p></div>
-            <div class="options-list">
-                <div class="option" onclick="nextStep()">Türkiye <span>></span></div>
-                <div class="option" onclick="nextStep()">Almanya <span>></span></div>
-                <div class="option" onclick="nextStep()">Amerika Birleşik Devletleri <span>></span></div>
-            </div>
+        <div class="app-grid">
+            <div class="app"><div class="app-icon" style="background: #2ecc71;">📞</div><span>Telefon</span></div>
+            <div class="app"><div class="app-icon" style="background: #e67e22;">✉️</div><span>Mesajlar</span></div>
+            <div class="app"><div class="app-icon" style="background: #3498db;">🌐</div><span>Tarayıcı</span></div>
+            <div class="app"><div class="app-icon" style="background: #9b59b6;">📷</div><span>Kamera</span></div>
+            <div class="app"><div class="app-icon" style="background: #f1c40f;">📁</div><span>Dosyalar</span></div>
+            <div class="app"><div class="app-icon" style="background: #e74c3c;">🎮</div><span>Oyunlar</span></div>
         </div>
 
-        <!-- Adım 3: Kullanıcı Sözleşmesi -->
-        <div class="step" id="step3">
-            <div class="header"><h1>Kullanıcı Sözleşmesi</h1><p>Lütfen şartları kabul edin.</p></div>
-            <div class="agreement">
-                1. NOVAPhone OS kullanım şartlarını kabul ediyorsunuz.<br>
-                2. Bu yazılım bir simülasyondur ve Admin (Yusuf) tarafından geliştirilmiştir.<br>
-                3. Verileriniz cihazınızda yerel olarak işlenir.<br>
-                4. Kardeş şakaları ve ileri seviye donanım modları için uygundur.<br><br>
-                ...Devamı için aşağı kaydırın...
-            </div>
-            <div class="footer"><button class="next-btn" onclick="nextStep()">✓</button></div>
+        <div class="dock">
+            <div class="app"><div class="app-icon" style="background: #fff; color: #000;">🎵</div></div>
+            <div class="app"><div class="app-icon" style="background: #fff; color: #000;">💬</div></div>
+            <div class="app"><div class="app-icon" style="background: #fff; color: #000;">🍎</div></div>
+            <div class="app"><div class="app-icon" style="background: #fff; color: #000;">🔍</div></div>
         </div>
-
-        <!-- Adım 4: Cihaz ve Kullanıcı İsmi -->
-        <div class="step" id="step4">
-            <div class="header"><h1>Kişiselleştirme</h1><p>Cihazınıza bir kimlik verin.</p></div>
-            <input type="text" id="dev-name" class="mi-input" placeholder="Cihaz İsmi (Örn: Yusuf'un Telefonu)">
-            <input type="text" id="user-name" class="mi-input" placeholder="Yönetici Adı" value="Admin">
-            <div class="footer"><button class="next-btn" onclick="finishSetup()">→</button></div>
-        </div>
-
-    </div>
-
-    <div id="main-system" style="display:none; color: white; text-align: center; padding-top: 100px;">
-        <h1>NOVAPhone OS Hazır!</h1>
-        <p>Masaüstü modülü için kod bekleniyor...</p>
     </div>
 
     <script>
-        // Açılış
-        setTimeout(() => {
-            document.getElementById('boot-screen').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('boot-screen').style.display = 'none';
-                document.getElementById('setup-container').style.display = 'flex';
-            }, 800);
-        }, 3000);
+        // Saat Güncelleme
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('os-time').innerText = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
 
-        let currentStep = 1;
-        function nextStep() {
-            document.getElementById('step' + currentStep).classList.remove('active');
-            currentStep++;
-            document.getElementById('step' + currentStep).classList.add('active');
+        // Kontrol Merkezi Aç/Kapat
+        function toggleControl() {
+            const cc = document.getElementById('control-center');
+            cc.classList.toggle('active');
         }
 
+        // Önceki finishSetup fonksiyonunu bununla güncelle
         function finishSetup() {
-            const dev = document.getElementById('dev-name').value;
-            const user = document.getElementById('user-name').value;
-            alert(`${dev} cihazı ${user} adına kaydedildi!`);
-            
-            document.getElementById('setup-container').style.transform = 'translateY(-100%)';
-            document.getElementById('setup-container').style.transition = '0.6s ease-in';
-            
-            setTimeout(() => {
-                document.getElementById('setup-container').style.display = 'none';
-                document.getElementById('main-system').style.display = 'block';
-            }, 600);
+            document.getElementById('setup-container').style.display = 'none';
+            document.getElementById('main-system').style.display = 'flex';
         }
     </script>
 </body>
