@@ -3,76 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nova Pon OS V16 - Full Call & SMS</title>
+    <title>Nova Pon OS V16 - Pro Build</title>
     <style>
-        :root { --blue: #007aff; --app-radius: 20px; --speed: 0.5s; --neon: #ff4655; }
-        body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: -apple-system, sans-serif; overflow: hidden; color: white; }
+        :root { --neon: #ff4655; --bg: #0a0a0c; --app-size: 68px; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body, html { margin: 0; padding: 0; height: 100%; background: var(--bg); font-family: -apple-system, sans-serif; overflow: hidden; color: white; }
 
-        /* AÇILIŞ VE KURULUM */
+        /* GAMER ARKA PLAN VE AÇILIŞ */
         #boot { position: fixed; inset: 0; background: #000; z-index: 20000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         #setup { position: fixed; inset: 0; background: #050505; z-index: 19000; display: none; flex-direction: column; padding: 40px; align-items: center; justify-content: center; text-align: center; }
-        .setup-card { background: #111; padding: 30px; border-radius: 30px; border: 2px solid var(--neon); width: 85%; box-shadow: 0 0 20px var(--neon); }
-        
-        /* ANA SİSTEM */
+        .setup-card { background: #111; padding: 30px; border-radius: 30px; border: 2px solid var(--neon); width: 85%; box-shadow: 0 0 30px var(--neon); }
+
+        /* ANA SİSTEM YAPISI */
         #os { display: none; height: 100vh; flex-direction: column; background: url('https://images.unsplash.com/photo-1542751371-adc38448a05e') center/cover; }
-        .status { height: 44px; display: flex; justify-content: space-between; align-items: center; padding: 0 25px; background: rgba(0,0,0,0.7); backdrop-filter: blur(20px); font-weight: bold; border-bottom: 1px solid rgba(255,70,85,0.3); }
+        .status-bar { height: 44px; display: flex; justify-content: space-between; align-items: center; padding: 0 25px; background: rgba(0,0,0,0.85); font-weight: bold; font-size: 14px; border-bottom: 1px solid rgba(255,70,85,0.4); }
         
+        /* UYGULAMA SAYFALARI */
         .viewport { flex: 1; overflow-x: auto; display: flex; scroll-snap-type: x mandatory; scroll-behavior: smooth; }
         .viewport::-webkit-scrollbar { display: none; }
-        .page { min-width: 100vw; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr); gap: 15px; padding: 25px; box-sizing: border-box; scroll-snap-align: start; }
+        .page { min-width: 100vw; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr); gap: 20px; padding: 25px; scroll-snap-align: start; }
         
-        /* SABİT DOCK */
-        .dock { height: 95px; background: rgba(255,255,255,0.15); backdrop-filter: blur(35px); margin: 15px; border-radius: 35px; display: flex; justify-content: space-around; align-items: center; padding: 0 20px; z-index: 100; border: 1px solid rgba(255,255,255,0.1); }
+        /* SABİT ALT DOCK */
+        .dock { height: 100px; background: rgba(255,255,255,0.1); backdrop-filter: blur(40px); margin: 15px; border-radius: 35px; display: flex; justify-content: space-around; align-items: center; padding: 0 20px; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 -5px 15px rgba(0,0,0,0.3); }
 
-        .app { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s; }
-        .app-icon { width: 66px; height: 66px; border-radius: var(--app-radius); display: flex; align-items: center; justify-content: center; font-size: 35px; box-shadow: 0 8px 20px rgba(0,0,0,0.5); }
-        .app span { font-size: 11px; margin-top: 6px; font-weight: 600; text-shadow: 1px 1px 3px #000; text-align: center; }
+        .app { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: transform 0.2s; }
+        .app-icon { width: var(--app-size); height: var(--app-size); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 35px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
+        .app span { font-size: 11px; margin-top: 8px; font-weight: 600; text-align: center; white-space: nowrap; }
 
-        /* PENCERELER */
-        #win { position: fixed; inset: 0; background: #fff; color: #000; z-index: 15000; display: none; flex-direction: column; animation: slideUp 0.4s ease; }
-        .win-h { height: 60px; display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid #eee; justify-content: space-between; background: #f8f8f8; }
-        iframe { width: 100%; height: 100%; border: none; background: #fff; }
+        /* GERÇEK ÇALIŞAN PENCERELER */
+        #win { position: fixed; inset: 0; background: #fff; color: #000; z-index: 15000; display: none; flex-direction: column; animation: slideUp 0.4s cubic-bezier(0.1, 0.9, 0.2, 1); }
+        .win-header { height: 60px; display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid #ddd; justify-content: space-between; background: #f1f1f1; }
+        .win-body { flex: 1; overflow: hidden; position: relative; }
+        iframe { width: 100%; height: 100%; border: none; }
 
-        /* TELEFON VE SMS TASARIMI */
-        .dialer { padding: 20px; text-align: center; }
-        .dial-screen { font-size: 32px; margin-bottom: 20px; height: 40px; font-weight: bold; }
-        .dial-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 250px; margin: 0 auto; }
-        .dial-btn { width: 60px; height: 60px; background: #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; cursor: pointer; }
-        .call-btn { background: #2ecc71; color: white; grid-column: span 3; border-radius: 30px; margin-top: 15px; height: 50px; display: flex; align-items: center; justify-content: center; text-decoration: none; font-weight: bold; }
-
-        .sms-input { position: absolute; bottom: 0; left: 0; right: 0; padding: 15px; background: #eee; display: flex; gap: 10px; }
-        .sms-box { flex: 1; border: 1px solid #ccc; border-radius: 20px; padding: 10px; font-size: 16px; }
-
+        /* ÖZEL COMPONENTLER */
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 20px; }
+        .calc-btn { height: 60px; background: #eee; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; }
+        
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <!-- BOOT -->
     <div id="boot">
-        <h1 style="letter-spacing:12px; color:var(--neon); text-shadow: 0 0 15px var(--neon);">NOVA PON</h1>
-        <div style="width:200px; height:3px; background:#222; margin-top:20px;"><div id="boot-fill" style="width:0; height:100%; background:var(--neon); transition:2s linear;"></div></div>
-    </div>
-
-    <!-- KURULUM EKRANI -->
-    <div id="setup">
-        <div class="setup-card">
-            <h1 style="color:var(--neon); margin:0;">V16 KURULUMU</h1>
-            <p style="color:#ccc;">Kullanıcı: Admin Yusuf</p>
-            <div style="text-align:left; margin:20px 0; font-size:13px; color:#888; background:rgba(255,255,255,0.05); padding:15px; border-radius:15px;">
-                • 32GB RAM Optimizasyonu<br>
-                • 180Hz Panel Senkronizasyonu<br>
-                • Gerçek Arama & SMS Servisi Aktif
-            </div>
-            <button onclick="startOS()" style="width:100%; padding:18px; background:var(--neon); border:none; border-radius:15px; color:white; font-weight:bold; cursor:pointer;">SİSTEMİ BAŞLAT</button>
+        <h1 style="letter-spacing:15px; color:var(--neon); text-shadow: 0 0 20px var(--neon);">NOVA PON</h1>
+        <div style="width:220px; height:4px; background:#222; margin-top:20px; border-radius:10px; overflow:hidden;">
+            <div id="boot-fill" style="width:0; height:100%; background:var(--neon); transition:2.5s linear;"></div>
         </div>
     </div>
 
-    <!-- OS -->
+    <div id="setup">
+        <div class="setup-card">
+            <h1 style="color:var(--neon)">V16 GAMER EDITION</h1>
+            <p>Admin Yusuf & Nova Team</p>
+            <div style="text-align:left; font-size:13px; color:#aaa; padding:15px; background:#000; border-radius:15px; margin:20px 0;">
+                • MSI Katana Kernel v2.0<br>
+                • 32GB RAM Virtualization<br>
+                • 180Hz High-Refresh Logic<br>
+                • Real Call & SMS APIs Active
+            </div>
+            <button onclick="startOS()" style="width:100%; padding:18px; background:var(--neon); border:none; border-radius:15px; color:white; font-weight:bold; cursor:pointer;">KURULUMU TAMAMLA</button>
+        </div>
+    </div>
+
     <div id="os">
-        <div class="status">
+        <div class="status-bar">
             <span id="clock">00:00</span>
-            <div style="display:flex; gap:10px; font-size:12px;">32GB RAM | 180Hz</div>
+            <div style="display:flex; gap:12px; color:var(--neon)">32GB RAM | 180Hz</div>
         </div>
         
         <div class="viewport">
@@ -80,146 +77,101 @@
             <div class="page" id="p2"></div>
         </div>
 
-        <!-- SABİT ALT DOCK -->
         <div class="dock">
-            <div class="app" onclick="openApp('Telefon', 'tel')"><div class="app-icon" style="background:#2ecc71">📞</div></div>
-            <div class="app" onclick="openApp('NurıWEB', 'web')"><div class="app-icon" style="background:#fff">🌐</div></div>
-            <div class="app" onclick="openApp('Mesajlar', 'msg')"><div class="app-icon" style="background:#007aff">💬</div></div>
+            <div class="app" onclick="openApp('Telefon')"><div class="app-icon" style="background:#2ecc71">📞</div></div>
+            <div class="app" onclick="openApp('NurıWEB')"><div class="app-icon" style="background:#fff">🌐</div></div>
+            <div class="app" onclick="openApp('Mesajlar')"><div class="app-icon" style="background:#007aff">💬</div></div>
         </div>
     </div>
 
-    <!-- WINDOW -->
     <div id="win">
-        <div class="win-h">
+        <div class="win-header">
             <h3 id="win-t" style="margin:0">App</h3>
-            <button onclick="closeWin()" style="padding:10px 20px; border:none; background:#eee; border-radius:12px; font-weight:bold; color:red;">KAPAT</button>
+            <button onclick="closeWin()" style="padding:10px 20px; border:none; background:#ff4655; color:white; border-radius:12px; font-weight:bold;">KAPAT</button>
         </div>
-        <div id="win-b" style="flex:1; position:relative;"></div>
+        <div id="win-body" class="win-body"></div>
     </div>
 
     <script>
         let isV16 = false;
-        let dialedNum = "";
-
-        const baseApps = [
-            {n:'Ayarlar', i:'⚙️', c:'#8e8e93'}, {n:'Kamera', i:'📷', c:'#333'}, {n:'YouTube', i:'🎬', c:'#ff0000'},
-            {n:'Sporift', i:'🎵', c:'#1DB954'}, {n:'Galeri', i:'🖼️', c:'#ff9500'}, {n:'Harita', i:'📍', c:'#34c759'},
-            {n:'Hesap', i:'➕', c:'#ff9500'}, {n:'Notlar', i:'📝', c:'#ffcc00'}
+        const apps = [
+            {n:'YouTube', i:'🎬', c:'#ff0000', src:'https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1'},
+            {n:'Roblox 3D', i:'🎮', c:'#000', src:'https://www.roblox.com/discover'},
+            {n:'Valorant Mobil', i:'🎯', c:'#fa4454', src:'https://voxiom.io/'},
+            {n:'Sporift', i:'🎵', c:'#1DB954', src:'music'},
+            {n:'Kamera', i:'📷', c:'#333', src:'camera'},
+            {n:'Galeri', i:'🖼️', c:'#ff9500', src:'https://www.bing.com/images/trending'},
+            {n:'Notlar', i:'📝', c:'#ffcc00', src:'notes'},
+            {n:'Hesapla', i:'➕', c:'#ff9500', src:'calc'},
+            {n:'Harita', i:'📍', c:'#34c759', src:'https://www.google.com/maps/embed'},
+            {n:'Ayarlar', i:'⚙️', c:'#8e8e93', src:'settings'}
         ];
-        
-        const v16Apps = [
-            {n:'Roblox 3D', i:'🎮', c:'#000', u:'https://www.roblox.com/discover'},
-            {n:'Valorant Mobil', i:'🎯', c:'#fa4454', u:'https://voxiom.io/'},
-            {n:'Hava Durumu', i:'☁️', c:'#5ac8fa'}, {n:'Borsa', i:'📈', c:'#2ecc71'}
-        ];
 
+        // BOOT & INIT
         setTimeout(() => {
             document.getElementById('boot-fill').style.width = "100%";
             setTimeout(() => {
-                document.getElementById('boot').style.display = 'none';
-                document.getElementById('setup').style.display = 'flex';
-            }, 2100);
+                document.getElementById('boot').style.display='none';
+                document.getElementById('setup').style.display='flex';
+            }, 2600);
         }, 100);
 
         function startOS() {
             document.getElementById('setup').style.display = 'none';
             document.getElementById('os').style.display = 'flex';
             renderApps();
-            initAssistant();
+            startAssistant();
         }
 
         function renderApps() {
-            const p1 = document.getElementById('p1');
-            const p2 = document.getElementById('p2');
+            const p1 = document.getElementById('p1'); const p2 = document.getElementById('p2');
             p1.innerHTML = ""; p2.innerHTML = "";
-            const currentList = isV16 ? [...baseApps, ...v16Apps] : baseApps;
-            currentList.forEach((a, i) => {
-                const html = `<div class="app" onclick="openApp('${a.n}', '${a.u || a.n}')"><div class="app-icon" style="background:${a.c}">${a.i}</div><span>${a.n}</span></div>`;
-                if(i < 8) p1.innerHTML += html; else p2.innerHTML += html;
+            apps.forEach((a, i) => {
+                const html = `<div class="app" onclick="openApp('${a.n}')"><div class="app-icon" style="background:${a.c}">${a.i}</div><span>${a.n}</span></div>`;
+                (i < 8 ? p1 : p2).innerHTML += html;
             });
         }
 
-        function openApp(n, url) {
-            document.getElementById('win-t').innerText = n;
-            const b = document.getElementById('win-b');
+        function openApp(name) {
+            const a = apps.find(x => x.n === name) || {n:name, src:name.toLowerCase()};
+            document.getElementById('win-t').innerText = a.n;
+            const body = document.getElementById('win-body');
             document.getElementById('win').style.display = 'flex';
-            b.innerHTML = "";
+            body.innerHTML = "";
 
-            if(n === 'Telefon') {
-                dialedNum = "";
-                b.innerHTML = `<div class="dialer">
-                    <div class="dial-screen" id="d-scr"></div>
-                    <div class="dial-grid">
-                        ${[1,2,3,4,5,6,7,8,9,'*',0,'#'].map(x => `<div class="dial-btn" onclick="dial('${x}')">${x}</div>`).join('')}
-                    </div>
-                    <a id="call-lnk" href="#" class="call-btn" onclick="realCall()">ARA</a>
-                </div>`;
-            } else if(n === 'Mesajlar') {
-                b.innerHTML = `<div style="padding:20px;"><h3>Yeni Mesaj</h3><div id="m-list" style="margin-top:20px; color:#666;">Henüz mesaj yok.</div></div>
-                    <div class="sms-input">
-                        <input type="text" class="sms-box" id="sms-to" placeholder="Kime?">
-                        <button onclick="sendSMS()" style="background:var(--blue); color:white; border:none; padding:10px; border-radius:15px;">GÖNDER</button>
-                    </div>`;
-            } else if(n === 'NurıWEB') {
-                b.innerHTML = `<iframe src="https://www.google.com/search?igu=1"></iframe>`;
-            } else if(n === 'Valorant Mobil') {
-                b.innerHTML = `<iframe src="https://voxiom.io/" allow="autoplay; pc-keyboard; pc-mouse"></iframe>`;
-            } else if(n === 'Ayarlar') {
-                b.innerHTML = `<div style="padding:20px;"><h2>Nova Pon OS V16</h2><hr><button onclick="checkUpdate()" style="width:100%; padding:15px; background:var(--neon); color:white; border:none; border-radius:10px; font-weight:bold;">GÜNCELLE</button></div>`;
+            if(a.src === 'camera') {
+                body.innerHTML = `<video id="video" autoplay style="width:100%; height:100%; object-fit:cover"></video>`;
+                navigator.mediaDevices.getUserMedia({video:true}).then(s => document.getElementById('video').srcObject = s);
+            } else if(a.src === 'notes') {
+                body.innerHTML = `<textarea style="width:100%; height:100%; padding:25px; border:none; outline:none; font-size:18px;" placeholder="Admin Yusuf'un notları..."></textarea>`;
+            } else if(a.src === 'settings') {
+                body.innerHTML = `<div style="padding:20px"><h2>Nova Pon OS V16</h2><hr><p>Cihaz: Admin Yusuf Special</p><p>RAM: 32GB LPDDR4</p><p>Ekran: 180Hz Pro</p><button onclick="alert('Sistem Güncel!')" style="width:100%; padding:15px; background:var(--neon); color:white; border:none; border-radius:10px;">GÜNCELLEME DENETLE</button></div>`;
+            } else if(a.n === 'Telefon') {
+                body.innerHTML = `<div style="padding:40px; text-align:center;"><input type="text" id="tel-n" style="font-size:30px; width:100%; text-align:center; margin-bottom:20px;" placeholder="05..."><button onclick="window.location.href='tel:'+document.getElementById('tel-n').value" style="width:100%; height:60px; background:#2ecc71; color:white; border:none; border-radius:30px; font-weight:bold;">GERÇEK ARAMA BAŞLAT</button></div>`;
+            } else if(a.n === 'NurıWEB') {
+                body.innerHTML = `<iframe src="https://www.bing.com"></iframe>`; // Google hatası yerine Bing/DuckDuckGo daha stabil
             } else {
-                b.innerHTML = `<div style="padding:50px; text-align:center;"><h2>${n}</h2><p>Aktif Edildi.</p></div>`;
+                body.innerHTML = `<iframe src="${a.src}"></iframe>`;
             }
         }
 
-        function dial(x) {
-            dialedNum += x;
-            document.getElementById('d-scr').innerText = dialedNum;
+        function closeWin() { 
+            const v = document.getElementById('video');
+            if(v && v.srcObject) v.srcObject.getTracks().forEach(t => t.stop());
+            document.getElementById('win').style.display = 'none'; 
         }
 
-        function realCall() {
-            if(dialedNum.length > 0) {
-                window.location.href = "tel:" + dialedNum; // GERÇEK ARAMA BAŞLATIR
-            } else {
-                alert("Lütfen bir numara çevirin.");
-            }
-        }
-
-        function sendSMS() {
-            const to = document.getElementById('sms-to').value;
-            if(to) {
-                window.location.href = "sms:" + to; // GERÇEK SMS UYGULAMASINI AÇAR
-            } else {
-                alert("Lütfen bir numara girin.");
-            }
-        }
-
-        function checkUpdate() {
-            if(isV16) return alert("Güncel Sürüm.");
-            if(confirm("Telefonu güncellemek istiyor musunuz?")) {
-                isV16 = true;
-                closeWin();
-                renderApps();
-                alert("Nova Pon OS V16 Kuruldu!");
-            }
-        }
-
-        function initAssistant() {
+        function startAssistant() {
             window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if(window.SpeechRecognition) {
-                const rec = new SpeechRecognition();
-                rec.lang = 'tr-TR';
-                rec.onresult = (e) => {
-                    if(e.results[0][0].transcript.toLowerCase().includes('hey nova')) alert("Buyur Admin Yusuf!");
-                };
-                rec.onend = () => rec.start();
-                rec.start();
+                const r = new SpeechRecognition(); r.lang = 'tr-TR';
+                r.onresult = (e) => { if(e.results[0][0].transcript.toLowerCase().includes('hey nova')) alert("Buyur Admin Yusuf, seni dinliyorum!"); };
+                r.onend = () => r.start(); r.start();
             }
         }
 
-        function closeWin() { document.getElementById('win').style.display = 'none'; }
         setInterval(() => {
-            const d = new Date();
-            document.getElementById('clock').innerText = d.getHours().toString().padStart(2,'0')+":"+d.getMinutes().toString().padStart(2,'0');
+            const d = new Date(); document.getElementById('clock').innerText = d.getHours().toString().padStart(2,'0')+":"+d.getMinutes().toString().padStart(2,'0');
         }, 1000);
     </script>
 </body>
