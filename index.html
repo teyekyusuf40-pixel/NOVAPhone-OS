@@ -3,77 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nova OS V26 - Mega Pro</title>
+    <title>Nova OS V26 - Full Work</title>
     <style>
         :root { --blue: #007aff; --bg: #f2f2f7; --glass: rgba(255,255,255,0.2); }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, sans-serif; }
         body, html { margin: 0; padding: 0; height: 100%; background: #000; overflow: hidden; color: white; }
 
-        /* AÇILIŞ */
-        #boot { position: fixed; inset: 0; background: #000; z-index: 100000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .loader { width: 50px; height: 50px; border: 3px solid #333; border-top-color: #fff; border-radius: 50%; animation: spin 1s infinite linear; }
+        /* AÇILIŞ VE SİSTEM EKRANLARI */
+        #boot, #dead-battery, #update-ui { position: fixed; inset: 0; z-index: 100000; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #000; text-align: center; }
+        .spinner { width: 50px; height: 50px; border: 3px solid #333; border-top-color: var(--blue); border-radius: 50%; animation: spin 1s infinite linear; }
         @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* ŞARJ BİTTİ (10 DK BEKLEME) */
-        #dead-battery { position: fixed; inset: 0; background: #000; z-index: 200000; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        
-        /* GÜNCELLEME EKRANI */
-        #update-ui { position: fixed; inset: 0; background: #000; z-index: 150000; display: none; flex-direction: column; align-items: center; justify-content: center; }
         .p-bar { width: 70%; height: 4px; background: #333; border-radius: 2px; margin-top: 20px; overflow: hidden; }
         #p-fill { width: 0%; height: 100%; background: #fff; }
 
         /* KİLİT EKRANI */
-        #lock { position: fixed; inset: 0; background: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b') center/cover; z-index: 90000; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 80px 0; transition: 0.6s; }
+        #lock { position: fixed; inset: 0; background: url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853') center/cover; z-index: 90000; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 100px 0; transition: 0.6s; }
+        #l-time { font-size: 80px; font-weight: 200; }
 
         /* ANA SİSTEM */
         #os { display: none; height: 100vh; flex-direction: column; background: url('https://images.unsplash.com/photo-1493246507139-91e8bef99c1a') center/cover; }
         .status-bar { height: 40px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; background: rgba(0,0,0,0.3); backdrop-filter: blur(20px); font-size: 14px; }
-        
         .viewport { flex: 1; overflow-y: auto; padding: 20px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; align-content: start; }
         
-        /* APPS */
         .app { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
-        .app-icon { width: 60px; height: 60px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: 0.2s; }
-        .app-icon:active { transform: scale(0.9); }
-        .app span { font-size: 11px; margin-top: 6px; text-shadow: 1px 1px 2px #000; text-align: center; }
+        .app-icon { width: 60px; height: 60px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 8px 15px rgba(0,0,0,0.3); transition: 0.2s; }
+        .app span { font-size: 11px; margin-top: 6px; text-shadow: 1px 1px 2px #000; white-space: nowrap; }
 
-        /* DOCK */
-        .dock { height: 90px; background: rgba(255,255,255,0.2); backdrop-filter: blur(30px); margin: 15px; border-radius: 25px; display: flex; justify-content: space-around; align-items: center; padding: 0 10px; }
+        .dock { height: 85px; background: rgba(255,255,255,0.2); backdrop-filter: blur(30px); margin: 15px; border-radius: 22px; display: flex; justify-content: space-around; align-items: center; padding: 0 10px; }
 
-        /* PENCERE */
-        #win { position: fixed; inset: 0; background: #f2f2f7; color: #000; z-index: 10000; display: none; flex-direction: column; animation: slideUp 0.4s ease; }
-        .win-h { height: 60px; display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid #ddd; justify-content: space-between; background: #fff; }
-        .win-b { flex: 1; overflow-y: auto; padding: 20px; }
+        /* PENCERE VE UYGULAMA İÇLERİ */
+        #win { position: fixed; inset: 0; background: #fff; color: #000; z-index: 10000; display: none; flex-direction: column; animation: slideUp 0.3s ease; }
+        .win-h { height: 60px; display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid #ddd; justify-content: space-between; }
+        .win-b { flex: 1; overflow-y: auto; padding: 20px; background: #f2f2f7; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-        /* ARAMA MOTORU SİMÜLASYONU */
-        .search-engine { display: flex; flex-direction: column; gap: 10px; }
-        .search-bar { width: 100%; padding: 15px; border-radius: 25px; border: 1px solid #ddd; outline: none; font-size: 16px; }
-        .search-results { margin-top: 10px; }
-        .res-item { background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        /* ÖZEL UYGULAMA STİLLERİ */
+        .search-box { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 10px; font-size: 16px; }
+        .btn-action { width: 100%; padding: 15px; background: var(--blue); color: #fff; border: none; border-radius: 12px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .calc-btn { background: #fff; padding: 20px; text-align: center; border-radius: 10px; font-weight: bold; border: 1px solid #ddd; }
+        .game-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; max-width: 300px; margin: auto; }
+        .cell { aspect-ratio: 1; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 40px; border: 1px solid #ddd; }
     </style>
 </head>
 <body>
 
-    <div id="boot"><div class="loader"></div><h2 style="margin-top:20px; letter-spacing:5px;">NOVA OS</h2></div>
+    <div id="boot"><div class="spinner"></div><h2 style="margin-top:20px;">NOVA OS</h2></div>
     
-    <div id="dead-battery">
+    <div id="dead-battery" style="display:none;">
         <div style="font-size:80px;">🪫</div>
-        <h2>Şarj Bitti!</h2>
-        <p id="charge-msg">Cihazın açılması için şarj olması gerekiyor.</p>
-        <p id="timer-text" style="color:var(--blue); font-weight:bold;"></p>
-        <button id="charge-btn" onclick="startCharging()" style="padding:15px 30px; border-radius:15px; border:none; background:var(--blue); color:white; font-weight:bold; cursor:pointer;">Şarj Et (10 Dakika)</button>
+        <h2>Şarj %0</h2>
+        <p id="t-text" style="color:var(--blue); font-size:24px; font-weight:bold;"></p>
+        <button id="c-btn" onclick="startCharging()" class="btn-action" style="width:200px;">Şarj Et (10 Dakika)</button>
     </div>
 
-    <div id="update-ui">
-        <h2>V26 Yazılımı Yapılandırılıyor...</h2>
+    <div id="update-ui" style="display:none;">
+        <h2>Nova OS V26 Kuruluyor...</h2>
         <div class="p-bar"><div id="p-fill"></div></div>
-        <p style="margin-top:10px; opacity:0.5;">Yeni uygulamalar ve oyunlar ekleniyor.</p>
     </div>
 
-    <div id="lock" onmousedown="startY=event.clientY" ontouchstart="startY=event.touches[0].clientY" onmouseup="checkSwipe(event.clientY)" ontouchend="checkSwipe(event.changedTouches[0].clientY)">
-        <h1 id="l-time" style="font-size:90px; font-weight:200;">00:00</h1>
-        <p>▲ Açmak için yukarı kaydır</p>
+    <div id="lock" onmouseup="unlockOS()">
+        <h1 id="l-time">00:00</h1>
+        <p>Açmak için dokun veya kaydır</p>
     </div>
 
     <div id="os">
@@ -81,7 +72,7 @@
             <span id="o-time">00:00</span>
             <span id="bat-val">🔋 %100</span>
         </div>
-        <div class="viewport" id="app-grid"></div>
+        <div class="viewport" id="grid"></div>
         <div class="dock">
             <div class="app" onclick="openApp('Arama')"><div class="app-icon" style="background:#34c759;">📞</div></div>
             <div class="app" onclick="openApp('NurıWEB')"><div class="app-icon" style="background:#fff;">🌐</div></div>
@@ -90,47 +81,41 @@
     </div>
 
     <div id="win">
-        <div class="win-h"><h3 id="win-t">App</h3><button onclick="closeApp()" style="color:var(--blue); border:none; background:none; font-weight:bold; font-size:16px;">Bitti</button></div>
+        <div class="win-h"><h3 id="win-t">App</h3><button onclick="closeApp()" style="color:var(--blue); border:none; background:none; font-weight:bold;">Bitti</button></div>
         <div id="win-b" class="win-b"></div>
     </div>
 
     <script>
-        let battery = 100; let version = "V17"; let startY = 0;
+        let battery = 100; let version = "V17";
         
-        // UYGULAMA LİSTELERİ
         const appsV17 = [
-            {n:'Galeri', i:'🖼️', c:'#ff2d55'}, {n:'Müzik', i:'🎵', c:'#ff9500'}, {n:'Notlar', i:'📝', c:'#ffcc00'},
-            {n:'Hesap Mak.', i:'➗', c:'#5856d6'}, {n:'Hava', i:'☀️', c:'#5ac8fa'}, {n:'Harita', i:'📍', c:'#4cd964'},
+            {n:'Galeri', i:'🖼️', c:'#ff2d55'}, {n:'Notlar', i:'📝', c:'#ffcc00'}, {n:'Harita', i:'📍', c:'#4cd964'},
+            {n:'Hesapla', i:'➕', c:'#5856d6'}, {n:'Müzik', i:'🎵', c:'#ff9500'}, {n:'Hava', i:'☀️', c:'#5ac8fa'},
             {n:'Dosyalar', i:'📂', c:'#007aff'}, {n:'Saat', i:'⏰', c:'#000'}, {n:'Kamera', i:'📷', c:'#8e8e93'}, {n:'Takvim', i:'📅', c:'#ff3b30'}
         ];
 
         const extraV26 = [
-            {n:'Yılan Oyunu', i:'🐍', c:'#2ecc71'}, {n:'XOX', i:'❌', c:'#e74c3c'}, {n:'Haberler', i:'📰', c:'#34495e'},
+            {n:'XOX Oyunu', i:'❌', c:'#e74c3c'}, {n:'Yılan', i:'🐍', c:'#2ecc71'}, {n:'Haberler', i:'📰', c:'#34495e'},
             {n:'Borsa', i:'📈', c:'#27ae60'}, {n:'Nova Chat', i:'💬', c:'#9b59b6'}, {n:'Mail', i:'📧', c:'#3498db'},
             {n:'Video', i:'🎥', c:'#e67e22'}, {n:'Mağaza', i:'🛍️', c:'#f1c40f'}, {n:'Çizim', i:'🎨', c:'#1abc9c'},
             {n:'Ses Kaydı', i:'🎙️', c:'#7f8c8d'}, {n:'Translate', i:'🔡', c:'#2980b9'}, {n:'Hız Testi', i:'🚀', c:'#c0392b'},
-            {n:'Fener', i:'🔦', c:'#d35400'}, {n:'Nova Pay', i:'💳', c:'#2c3e50'}, {n:'Sözlük', i:'📖', c:'#16a085'},
-            {n:'Rehber', i:'👤', c:'#7f8c8d'}, {n:'QR Tarayıcı', i:'🔳', c:'#000'}, {n:'Nova Game', i:'🎮', c:'#8e44ad'},
-            {n:'E-Kitap', i:'📚', c:'#d35400'}, {n:'Nova TV', i:'📺', c:'#c0392b'}
+            {n:'Fener', i:'🔦', c:'#d35400'}, {n:'Cüzdan', i:'💳', c:'#2c3e50'}, {n:'Sözlük', i:'📖', c:'#16a085'},
+            {n:'Rehber', i:'👤', c:'#455a64'}, {n:'QR Tarayıcı', i:'🔳', c:'#212121'}, {n:'Nova Game', i:'🎮', c:'#8e44ad'},
+            {n:'E-Kitap', i:'📚', c:'#6d4c41'}, {n:'Nova TV', i:'📺', c:'#bf360c'}
         ];
 
-        // BOOT
-        setTimeout(() => { document.getElementById('boot').style.display='none'; }, 2500);
+        setTimeout(() => document.getElementById('boot').style.display='none', 2000);
 
-        // KİLİT AÇMA
-        function checkSwipe(endY) {
-            if(startY - endY > 100) {
-                document.getElementById('lock').style.transform = 'translateY(-100%)';
-                setTimeout(() => { document.getElementById('os').style.display='flex'; renderApps(); }, 400);
-            }
+        function unlockOS() {
+            document.getElementById('lock').style.transform = 'translateY(-100%)';
+            setTimeout(() => { document.getElementById('os').style.display='flex'; renderApps(); }, 400);
         }
 
-        // UYGULAMA MOTORU
         function renderApps() {
-            const grid = document.getElementById('app-grid');
+            const grid = document.getElementById('grid');
             grid.innerHTML = "";
-            let currentList = version === "V17" ? appsV17 : [...appsV17, ...extraV26];
-            currentList.forEach(a => {
+            let list = version === "V17" ? appsV17 : [...appsV17, ...extraV26];
+            list.forEach(a => {
                 grid.innerHTML += `<div class="app" onclick="openApp('${a.n}')"><div class="app-icon" style="background:${a.c}">${a.i}</div><span>${a.n}</span></div>`;
             });
         }
@@ -141,89 +126,66 @@
             document.getElementById('win').style.display = 'flex';
             
             if(name === 'NurıWEB') {
-                b.innerHTML = `
-                    <div class="search-engine">
-                        <input type="text" class="search-bar" id="sq" placeholder="Nova Search'de ara..." onkeyup="if(event.keyCode==13) doSearch()">
-                        <div id="results" class="search-results">
-                            <div class="res-item"><b>Nova OS V26 Yayında!</b><p>Yeni güncelleme ile 30 uygulama Yusuf'un MSI Katana'sına yüklendi.</p></div>
-                            <div class="res-item"><b>Arama Motoru Aktif</b><p>Artık her şeyi buradan aratabilirsin Yusuf.</p></div>
-                        </div>
-                    </div>`;
+                b.innerHTML = `<input type="text" id="sq" class="search-box" placeholder="Web'de ara..."><button class="btn-action" onclick="doSearch()">Ara</button><div id="res" style="margin-top:20px;"></div>`;
+            } else if(name === 'Hesapla') {
+                b.innerHTML = `<div style="font-size:32px; text-align:right; padding:20px; background:#fff; margin-bottom:10px;" id="calc-v">0</div><div class="calc-grid">${['7','8','9','/','4','5','6','*','1','2','3','-','C','0','=','+'].map(x=>`<div class="calc-btn" onclick="calc('${x}')">${x}</div>`).join('')}</div>`;
+            } else if(name === 'XOX Oyunu') {
+                b.innerHTML = `<div class="game-board">${Array(9).fill('<div class="cell" onclick="this.innerText=\'X\'"></div>').join('')}</div><button class="btn-action" onclick="openApp('XOX Oyunu')">Sıfırla</button>`;
             } else if(name === 'Ayarlar') {
-                b.innerHTML = `
-                    <div style="background:#fff; border-radius:12px; padding:15px;">
-                        <h4>Sistem Sürümü: ${version}</h4>
-                        <p>Cihaz: MSI Katana Pro</p>
-                        <hr>
-                        <button onclick="version='V17'; alert('Sıfırlandı'); renderApps(); closeApp();" style="color:red; border:none; background:none; padding:10px;">Şifreyi/Sistemi Sıfırla</button><br>
-                        <button onclick="alert('Dil: Türkçe');" style="border:none; background:none; padding:10px;">Dil Değiştir</button>
-                        <hr>
-                        ${version === 'V17' ? `<button onclick="startUpdate()" style="width:100%; padding:15px; background:var(--blue); color:#fff; border-radius:10px; border:none;">V26'ya Güncelle (20 Sn)</button>` : `<p style="color:green">Sistem Güncel!</p>`}
-                    </div>`;
-            } else if(name === 'XOX') {
-                b.innerHTML = `<h3>XOX Oyunu</h3><div style="display:grid; grid-template-columns:repeat(3,100px); gap:5px;">${Array(9).fill('<div style="height:100px; background:#ddd; display:flex; align-items:center; justify-content:center; font-size:40px;" onclick="this.innerText=\'X\'"></div>').join('')}</div>`;
+                b.innerHTML = `<h3>Sistem: ${version}</h3><p>Model: MSI Katana Pro</p><hr>
+                <button class="btn-action" style="background:#8e8e93" onclick="alert('Şifre Sıfırlandı')">Şifre Ayarları</button>
+                <button class="btn-action" style="background:#8e8e93" onclick="alert('Dil: Türkçe')">Dil: Türkçe</button>
+                ${version === 'V17' ? `<button class="btn-action" onclick="startUpdate()">V26'ya Güncelle (20 Sn)</button>` : `<p style="color:green; font-weight:bold;">Sistem Güncel!</p>`}
+                <button class="btn-action" style="background:red" onclick="location.reload()">Sistemi Sıfırla</button>`;
+            } else if(name === 'Harita') {
+                b.innerHTML = `<div style="width:100%; height:300px; background:#ddd; border-radius:15px; display:flex; align-items:center; justify-content:center;">📍 Antalya, Türkiye</div><p>Konumunuz MSI Katana üzerinden belirlendi.</p>`;
+            } else if(name === 'Hava') {
+                b.innerHTML = `<div style="text-align:center; padding:20px; background:linear-gradient(#5ac8fa, #007aff); color:white; border-radius:15px;"><h2>24°C</h2><p>Güneşli</p></div>`;
+            } else if(name === 'Arama') {
+                b.innerHTML = `<input type="tel" class="search-box" style="text-align:center; font-size:24px;" placeholder="05XX XXX XX XX"><button class="btn-action" style="background:#34c759">Ara</button>`;
             } else {
-                b.innerHTML = `<div style="text-align:center; padding-top:50px;"><h2>${name}</h2><p>Bu uygulama Nova OS V26 ile optimize edildi.</p><div style="font-size:80px;">✨</div></div>`;
+                b.innerHTML = `<div style="padding:20px; background:#fff; border-radius:12px;"><h3>${name} İçeriği</h3><p>Bu uygulama Nova OS V26 ile tam kapasite çalışıyor. Yusuf için MSI Katana donanımı kullanılarak veri yüklendi.</p><div style="font-size:50px; text-align:center;">🚀</div></div>`;
             }
         }
 
         function doSearch() {
             const q = document.getElementById('sq').value;
-            document.getElementById('results').innerHTML = `<div class="res-item"><b>${q} için sonuçlar:</b><p>Nova OS Yusuf için "<b>${q}</b>" konusunu araştırdı ve her şeyin yolunda olduğunu buldu!</p></div>` + document.getElementById('results').innerHTML;
+            document.getElementById('res').innerHTML = `<div style="background:#fff; padding:15px; border-radius:10px; margin-bottom:10px;"><b>Sonuç: ${q}</b><p>Nova OS Yusuf için araştırdı: ${q} hakkında her şey MSI Katana'da hazır!</p></div>`;
         }
 
-        function closeApp() { document.getElementById('win').style.display = 'none'; }
+        let cv = ""; function calc(x) {
+            if(x === '=') cv = eval(cv); else if(x === 'C') cv = ""; else cv += x;
+            document.getElementById('calc-v').innerText = cv || "0";
+        }
 
-        // GÜNCELLEME SİSTEMİ
         function startUpdate() {
-            closeApp();
-            document.getElementById('update-ui').style.display = 'flex';
-            let p = 0;
-            let int = setInterval(() => {
-                p++;
-                document.getElementById('p-fill').style.width = p + "%";
-                if(p >= 100) {
-                    clearInterval(int);
-                    version = "V26";
-                    setTimeout(() => { document.getElementById('update-ui').style.display = 'none'; renderApps(); alert("V26 Kuruldu! 30 Uygulama Hazır."); }, 1000);
-                }
-            }, 200); // 20 saniye
+            closeApp(); document.getElementById('update-ui').style.display = 'flex';
+            let p = 0; let int = setInterval(() => {
+                p++; document.getElementById('p-fill').style.width = p + "%";
+                if(p >= 100) { clearInterval(int); version = "V26"; setTimeout(() => { document.getElementById('update-ui').style.display = 'none'; renderApps(); alert("V26 Hazır!"); }, 1000); }
+            }, 200);
         }
 
-        // ŞARJ VE BEKLEME
         setInterval(() => {
             if(battery > 0) {
-                battery--;
-                document.getElementById('bat-val').innerText = `🔋 %${battery}`;
+                battery--; document.getElementById('bat-val').innerText = `🔋 %${battery}`;
                 if(battery === 0) document.getElementById('dead-battery').style.display = 'flex';
             }
-        }, 60000); // 1 dakikada %1
+        }, 60000);
 
         function startCharging() {
-            document.getElementById('charge-btn').style.display = 'none';
-            let total = 600; // 10 dakika = 600 saniye
-            let timer = setInterval(() => {
-                total--;
-                let m = Math.floor(total / 60);
-                let s = total % 60;
-                document.getElementById('timer-text').innerText = `${m}:${s < 10 ? '0'+s : s} kaldı`;
-                if(total <= 0) {
-                    clearInterval(timer);
-                    battery = 100;
-                    document.getElementById('dead-battery').style.display = 'none';
-                    document.getElementById('charge-btn').style.display = 'block';
-                    document.getElementById('timer-text').innerText = "";
-                    document.getElementById('bat-val').innerText = `🔋 %100`;
-                }
+            document.getElementById('c-btn').style.display = 'none';
+            let s = 600; let t = setInterval(() => {
+                s--; let m = Math.floor(s/60); let sec = s%60;
+                document.getElementById('t-text').innerText = `${m}:${sec < 10 ? '0'+sec : sec}`;
+                if(s <= 0) { clearInterval(t); battery = 100; document.getElementById('dead-battery').style.display = 'none'; document.getElementById('c-btn').style.display = 'block'; }
             }, 1000);
         }
 
-        // SAAT
+        function closeApp() { document.getElementById('win').style.display = 'none'; }
         setInterval(() => {
-            let d = new Date();
-            let t = d.getHours().toString().padStart(2,'0')+":"+d.getMinutes().toString().padStart(2,'0');
-            document.getElementById('l-time').innerText = t;
-            document.getElementById('o-time').innerText = t;
+            let d = new Date(); let t = d.getHours().toString().padStart(2,'0')+":"+d.getMinutes().toString().padStart(2,'0');
+            document.getElementById('l-time').innerText = t; document.getElementById('o-time').innerText = t;
         }, 1000);
     </script>
 </body>
