@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NOVAPhone OS</title>
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: 'Segoe UI', sans-serif; overflow: hidden; color: white; }
+        
+        /* 1. AÇILIŞ EKRANI (BOOT) */
+        #boot-screen {
+            position: fixed; inset: 0; background: #000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 1000; transition: opacity 1s ease-out;
+        }
+        .logo { font-size: 3rem; font-weight: bold; letter-spacing: 5px; margin-bottom: 20px; animation: pulse 2s infinite; }
+        .loader-bar { width: 200px; height: 4px; background: #333; border-radius: 2px; position: relative; overflow: hidden; }
+        .progress { width: 0%; height: 100%; background: #fff; position: absolute; transition: width 0.1s; }
+
+        /* 2. KURULUM EKRANI (SETUP) */
+        #setup-screen {
+            position: fixed; inset: 0; background: #111;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            padding: 40px; text-align: center; z-index: 900;
+        }
+        .setup-card { background: #222; padding: 30px; border-radius: 20px; width: 80%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        input { width: 100%; padding: 12px; margin: 20px 0; border-radius: 8px; border: none; background: #333; color: white; font-size: 1rem; outline: none; }
+        button { background: #fff; color: #000; border: none; padding: 12px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #ddd; }
+
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+    </style>
+</head>
+<body>
+
+    <!-- Açılış Bölümü -->
+    <div id="boot-screen">
+        <div class="logo">NOVAPhone</div>
+        <div class="loader-bar"><div id="boot-progress" class="progress"></div></div>
+    </div>
+
+    <!-- Kurulum Bölümü -->
+    <div id="setup-screen">
+        <div class="setup-card">
+            <h1>Hoş Geldiniz</h1>
+            <p>NOVAPhone OS dünyasına ilk adımınızı atın.</p>
+            <input type="text" id="username-input" placeholder="Kullanıcı adınızı belirleyin" value="Admin">
+            <button onclick="finishSetup()">Kurulumu Tamamla</button>
+        </div>
+    </div>
+
+    <!-- Ana Sistem (Önceki aşama) -->
+    <div id="main-system" style="display:none;">
+        <h1 id="welcome-msg"></h1>
+    </div>
+
+    <script>
+        // BOOT SİMASYONU
+        let prog = 0;
+        const progBar = document.getElementById('boot-progress');
+        
+        const bootInterval = setInterval(() => {
+            prog += Math.random() * 5;
+            if(prog >= 100) {
+                prog = 100;
+                clearInterval(bootInterval);
+                setTimeout(showSetup, 500);
+            }
+            progBar.style.width = prog + '%';
+        }, 100);
+
+        function showSetup() {
+            document.getElementById('boot-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('boot-screen').style.display = 'none';
+                document.getElementById('setup-screen').style.display = 'flex';
+            }, 1000);
+        }
+
+        function finishSetup() {
+            const user = document.getElementById('username-input').value;
+            alert("Sistem yapılandırılıyor... Hoş geldin " + user);
+            // Burada ana ekrana geçiş kodlarını tetikleyeceğiz
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('main-system').style.display = 'block';
+            document.getElementById('welcome-msg').innerText = "Cihaz Hazır: " + user;
+        }
+    </script>
+</body>
+</html>
