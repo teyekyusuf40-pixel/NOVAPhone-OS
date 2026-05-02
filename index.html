@@ -3,186 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NOVAPhone OS v3.0</title>
+    <title>NOVAPhone OS v4.0</title>
     <style>
-        :root { --blue: #007aff; --bg: #000; }
+        :root { --blue: #007aff; --gray: #8e8e93; --bright: 1; }
         body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: -apple-system, sans-serif; overflow: hidden; color: white; -webkit-user-select: none; }
-        
-        /* 1. AÇILIŞ VE KURULUM */
-        #boot { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 1s; }
-        #setup { position: fixed; inset: 0; background: #fff; color: #000; z-index: 9000; display: none; flex-direction: column; padding: 50px 25px; text-align: center; }
-        .setup-btn { background: var(--blue); color: white; border: none; padding: 18px; border-radius: 15px; font-weight: bold; font-size: 18px; cursor: pointer; margin-top: auto; }
+        #b-overlay { position: fixed; inset: 0; background: black; opacity: calc(1 - var(--bright)); pointer-events: none; z-index: 9999; }
 
-        /* 2. ANA SİSTEM */
-        #os { display: none; height: 100vh; flex-direction: column; background: url('https://images.unsplash.com/photo-1557683316-973673baf926') center/cover; }
-        .status-bar { height: 44px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; font-weight: bold; background: rgba(0,0,0,0.3); backdrop-filter: blur(10px); }
-        
-        .viewport { flex: 1; overflow-x: auto; display: flex; scroll-snap-type: x mandatory; scroll-behavior: smooth; }
-        .viewport::-webkit-scrollbar { display: none; }
-        .page { min-width: 100vw; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr); gap: 10px; padding: 25px; box-sizing: border-box; scroll-snap-align: start; }
-        
-        .app { display: flex; flex-direction: column; align-items: center; transition: 0.2s; cursor: pointer; }
-        .app:active { transform: scale(0.9); opacity: 0.7; }
-        .app-icon { width: 64px; height: 64px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 35px; box-shadow: 0 5px 15px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); }
-        .app span { font-size: 12px; margin-top: 8px; font-weight: 500; text-shadow: 1px 1px 3px #000; }
+        /* KURULUM SİSTEMİ (STEP BY STEP) */
+        .setup-screen { position: fixed; inset: 0; background: #fff; color: #000; z-index: 9000; display: none; flex-direction: column; padding: 40px 20px; }
+        .setup-page { display: none; height: 100%; flex-direction: column; text-align: center; }
+        .setup-page.active { display: flex; }
+        .setup-btn { background: var(--blue); color: #fff; border: none; padding: 15px; border-radius: 12px; font-weight: bold; margin-top: auto; cursor: pointer; }
 
-        /* 3. PENCERELER */
-        #window { position: fixed; inset: 0; background: #fff; color: #000; z-index: 8000; display: none; flex-direction: column; animation: slideIn 0.4s cubic-bezier(0, 1, 0.5, 1); }
-        .win-header { height: 65px; display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid #eee; justify-content: space-between; background: #fcfcfc; }
-        .content { flex: 1; overflow: auto; position: relative; }
+        /* ANA SİSTEM */
+        #os { display: none; height: 100vh; flex-direction: column; background: url('https://images.unsplash.com/photo-1536440136628-849c177e76a1') center/cover; }
+        .status-bar { height: 44px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; font-weight: 600; background: rgba(0,0,0,0.2); }
+
+        .viewport { flex: 1; overflow-x: auto; display: flex; scroll-snap-type: x mandatory; }
+        .page { min-width: 100vw; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr); gap: 15px; padding: 25px; box-sizing: border-box; scroll-snap-align: start; }
         
-        iframe { width: 100%; height: 100%; border: none; }
-        video { width: 100%; height: 100%; object-fit: cover; background: #000; }
+        .app { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+        .app-icon { width: 62px; height: 62px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); }
+        .app span { font-size: 11px; margin-top: 6px; text-shadow: 1px 1px 2px #000; font-weight: 500; }
 
-        /* ÖZEL COMPONENTLER */
-        .setting-row { padding: 15px 20px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; font-size: 16px; }
-        .setting-row:active { background: #f9f9f9; }
-        .note-area { width: 100%; height: 90%; padding: 20px; border: none; font-size: 18px; outline: none; }
+        /* PENCERE VE İÇERİK */
+        #win { position: fixed; inset: 0; background: #fff; color: #000; z-index: 8000; display: none; flex-direction: column; animation: slideUp 0.3s forwards; }
+        .win-head { height: 60px; display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid #ddd; justify-content: space-between; background: #f8f8f8; }
+        .win-body { flex: 1; overflow: auto; }
 
-        @keyframes slideIn { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .row { padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .row:active { background: #f0f0f0; }
+
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <!-- BOOT -->
-    <div id="boot">
-        <h1 style="letter-spacing: 12px; margin-bottom: 20px;">NOVAPHONE</h1>
-        <div style="width:30px; height:30px; border:3px solid #333; border-top-color:#fff; border-radius:50%; animation:spin 1s linear infinite;"></div>
-    </div>
+    <div id="b-overlay"></div>
 
-    <!-- SETUP -->
-    <div id="setup">
-        <div style="font-size: 60px; margin-top: 40px;">🚀</div>
-        <h1 style="font-size: 32px; margin-bottom: 10px;">Yeni Nesil OS</h1>
-        <p style="color: #666; line-height: 1.5;">Yusuf (Admin) tarafından optimize edildi.<br>32GB RAM ve 180Hz desteği aktif.</p>
-        <button class="setup-btn" onclick="goLive()">Kurulumu Tamamla</button>
-    </div>
-
-    <!-- MAIN OS -->
-    <div id="os">
-        <div class="status-bar">
-            <span id="clock">00:00</span>
-            <div style="display:flex; gap:10px;">📶 <span id="battery">--</span>% 🔋</div>
+    <!-- KURULUM -->
+    <div id="setup" class="setup-screen">
+        <div class="setup-page active" id="st1">
+            <h1 style="font-size: 40px;">Merhaba</h1>
+            <p>Admin Yusuf'un tasarladığı NOVAPhone dünyasına hoş geldiniz.</p>
+            <button class="setup-btn" onclick="nextSetup(2)">Başlat →</button>
         </div>
+        <div class="setup-page" id="st2">
+            <h1>Dil ve Bölge</h1>
+            <div class="row"><span>Türkçe</span><span>✓</span></div>
+            <div class="row"><span>İngilizce</span></div>
+            <div class="row"><span>Almanca</span></div>
+            <button class="setup-btn" onclick="nextSetup(3)">İlerle</button>
+        </div>
+        <div class="setup-page" id="st3">
+            <h1>Donanım Onayı</h1>
+            <div class="row"><span>180Hz Ekran</span><span>Aktif</span></div>
+            <div class="row"><span>32GB RAM</span><span>Algılandı</span></div>
+            <div class="row"><span>MSI Katana Core</span><span>Turbo</span></div>
+            <button class="setup-btn" onclick="startOS()">Sistemi Kur</button>
+        </div>
+    </div>
 
-        <div class="viewport">
+    <!-- ANA SİSTEM -->
+    <div id="os">
+        <div class="status-bar" onclick="openApp('Denetim')">
+            <span id="time">00:00</span>
+            <div style="display:flex; gap:8px;">📶 <span id="bat">--</span>% 🔋</div>
+        </div>
+        <div class="viewport" id="desk">
             <div class="page" id="p1"></div>
             <div class="page" id="p2"></div>
         </div>
     </div>
 
-    <!-- APP WINDOW -->
-    <div id="window">
-        <div class="win-header">
-            <h2 id="win-title" style="margin:0; font-size: 18px;">Uygulama</h2>
-            <button onclick="closeApp()" style="background: #eee; border:none; padding: 8px 15px; border-radius: 20px; font-weight: bold; color: var(--blue);">Kapat</button>
+    <!-- PENCERE -->
+    <div id="win">
+        <div class="win-head">
+            <h3 id="win-title" style="margin:0;">Uygulama</h3>
+            <button onclick="closeApp()" style="border:none; background:none; font-size:18px; color:var(--blue); font-weight:bold;">Kapat</button>
         </div>
-        <div id="win-content" class="content"></div>
+        <div id="win-body" class="win-body"></div>
     </div>
 
     <script>
         const apps = [
-            {n:'NurıWEB', i:'🌐', c:'#fff'}, {n:'Kamera', i:'📷', c:'#333'}, {n:'Notlar', i:'📝', c:'#f1c40f'}, {n:'Ayarlar', i:'⚙️', c:'#8e8e93'},
-            {n:'Hesap', i:'➕', c:'#ff9500'}, {n:'YouTube', i:'🎬', c:'#ff0000'}, {n:'Harita', i:'📍', c:'#34c759'}, {n:'Müzik', i:'🎵', c:'#ff2d55'},
-            {n:'Galeri', i:'🖼️', c:'#5856d6'}, {n:'Dosyalar', i:'📁', c:'#5ac8fa'}, {n:'Saat', i:'⏰', c:'#000'}, {n:'Hava', i:'☁️', c:'#5bc0de'},
-            {n:'Mesajlar', i:'💬', c:'#4cd964'}, {n:'Telefon', i:'📞', c:'#28cd41'}, {n:'E-Posta', i:'📩', c:'#007aff'}, {n:'NovaLab', i:'🚀', c:'#5856d6'}
+            {n:'NurıWEB', i:'🌐', c:'#fff'}, {n:'Kamera', i:'📷', c:'#333'}, {n:'Ayarlar', i:'⚙️', c:'#8e8e93'}, {n:'Dosyalar', i:'📁', c:'#5ac8fa'},
+            {n:'Galeri', i:'🖼️', c:'#ff9500'}, {n:'Mesajlar', i:'💬', c:'#4cd964'}, {n:'YouTube', i:'🎬', c:'#f00'}, {n:'Müzik', i:'🎵', c:'#ff2d55'},
+            {n:'Notlar', i:'📝', c:'#f1c40f'}, {n:'Hesap', i:'➕', c:'#ff9500'}, {n:'Harita', i:'📍', c:'#34c759'}, {n:'Telefon', i:'📞', c:'#28cd41'},
+            {n:'Pazar', i:'🛍️', c:'#af52de'}, {n:'Hava', i:'☁️', c:'#5bc0de'}, {n:'Saat', i:'⏰', c:'#000'}, {n:'NovaLab', i:'🚀', c:'#5856d6'}
         ];
 
-        window.onload = () => {
-            setTimeout(() => {
-                document.getElementById('boot').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('boot').style.display = 'none';
-                    document.getElementById('setup').style.display = 'flex';
-                }, 1000);
-            }, 2500);
-        };
+        window.onload = () => document.getElementById('setup').style.display = 'flex';
 
-        function goLive() {
-            document.getElementById('setup').style.display = 'none';
-            document.getElementById('os').style.display = 'flex';
-            renderApps();
+        function nextSetup(n) {
+            document.querySelectorAll('.setup-page').forEach(p => p.classList.remove('active'));
+            document.getElementById('st' + n).classList.add('active');
         }
 
-        function renderApps() {
+        function startOS() {
+            document.getElementById('setup').style.display = 'none';
+            document.getElementById('os').style.display = 'flex';
             const p1 = document.getElementById('p1');
-            const p2 = document.getElementById('p2');
             apps.forEach((a, i) => {
-                const html = `<div class="app" onclick="openApp('${a.n}')"><div class="app-icon" style="background:${a.c}">${a.i}</div><span>${a.n}</span></div>`;
-                if(i < 12) p1.innerHTML += html; else p2.innerHTML += html;
+                const h = `<div class="app" onclick="openApp('${a.n}')"><div class="app-icon" style="background:${a.c}">${a.i}</div><span>${a.n}</span></div>`;
+                if(i < 12) p1.innerHTML += h; else document.getElementById('p2').innerHTML += h;
             });
         }
 
         function openApp(name) {
-            const win = document.getElementById('window');
-            const cont = document.getElementById('win-content');
+            const b = document.getElementById('win-body');
             document.getElementById('win-title').innerText = name;
-            win.style.display = 'flex';
-            cont.innerHTML = "";
+            document.getElementById('win').style.display = 'flex';
+            b.innerHTML = "";
 
-            switch(name) {
-                case 'NurıWEB':
-                    cont.innerHTML = `
-                        <div style="background:#f1f1f1; padding:10px; display:flex; gap:10px;">
-                            <input id="url" style="flex:1; padding:10px; border-radius:10px; border:1px solid #ccc;" placeholder="Arama yap veya URL yaz...">
-                            <button onclick="doSearch()" style="padding:10px 20px; background:var(--blue); color:white; border:none; border-radius:10px;">Git</button>
-                        </div>
-                        <iframe id="browser" src="https://duckduckgo.com/search?q=novaphone"></iframe>`;
-                    break;
-                case 'Kamera':
-                    cont.innerHTML = `<video id="video" autoplay playsinline></video>`;
-                    navigator.mediaDevices.getUserMedia({video:true}).then(s => document.getElementById('video').srcObject = s).catch(e => alert("Kamera izni gerekiyor."));
-                    break;
-                case 'Notlar':
-                    cont.innerHTML = `<textarea class="note-area" placeholder="Bir şeyler yaz... (Otomatik kaydedilir)"></textarea>`;
-                    break;
-                case 'Hesap':
-                    cont.innerHTML = `<iframe src="https://www.desmos.com/scientific?lang=tr"></iframe>`;
-                    break;
-                case 'Ayarlar':
-                    const s = [
-                        'Kullanıcı: Admin', 'Sistem: NOVAPhone Pro', 'RAM: 32GB LPDDR4x', 'Ekran: 180Hz Super AMOLED',
-                        'Depolama: 1TB NVMe SSD', 'Geliştirici: Yusuf', 'Wi-Fi: Nova_Fiber_5G', 'Bluetooth: 5.3',
-                        'Parlaklık: %100', 'Pil Sağlığı: %100', 'İşlemci: A16 Bionic (Admin-Core)', 'GPU: Nova-Graphics v2',
-                        'Karanlık Mod: Aktif', 'Uçak Modu: Kapalı', 'Konum: Açık', 'Güvenlik: Yüz Tanıma',
-                        'Yazılım Güncelleme', 'Hakkında', 'Yardım', 'Cihazı Sıfırla (Fabrika Ayarları)'
-                    ];
-                    s.forEach(item => {
-                        cont.innerHTML += `<div class="setting-row" onclick="alert('${item} seçildi')"><span>${item}</span><span>></span></div>`;
-                    });
-                    break;
-                case 'YouTube':
-                    cont.innerHTML = `<iframe src="https://www.youtube.com/embed?listType=search&list=trending"></iframe>`;
-                    break;
-                case 'Harita':
-                    cont.innerHTML = `<iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d10000!2d29!3d41!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1str!2str!4v123456789"></iframe>`;
-                    break;
-                case 'Saat':
-                    setInterval(() => { if(document.getElementById('big-clock')) document.getElementById('big-clock').innerText = new Date().toLocaleTimeString(); }, 1000);
-                    cont.innerHTML = `<div style="height:100%; display:flex; align-items:center; justify-content:center; font-size:50px; font-weight:bold;" id="big-clock">${new Date().toLocaleTimeString()}</div>`;
-                    break;
-                default:
-                    cont.innerHTML = `<div style="padding:40px; text-align:center;"><h2>${name}</h2><p>Admin tarafından optimize ediliyor...</p></div>`;
+            if(name === 'NurıWEB') {
+                b.innerHTML = `<div style="padding:10px; background:#eee; display:flex; gap:10px;">
+                    <input id="q" style="flex:1; padding:12px; border-radius:10px; border:1px solid #ccc;" placeholder="Google'da ara...">
+                    <button onclick="search()" style="background:var(--blue); color:#fff; border:none; padding:0 20px; border-radius:10px;">Ara</button>
+                </div><iframe id="web" src="https://www.bing.com/search?q=yusuf" style="width:100%; height:90%; border:none;"></iframe>`;
+            } else if(name === 'Ayarlar') {
+                const sets = ['Wi-Fi: Nova_Fiber_5G', 'Bluetooth: Bağlı', 'Ekran Parlaklığı: %100', 'Yenileme Hızı: 180Hz', 'RAM: 32GB LPDDR4', 'Depolama: 1TB SSD', 'Geliştirici: Yusuf (Admin)', 'Sistem Sürümü: v4.0', 'Pil Sağlığı: %100', 'Güvenlik: Yüz Tanıma', 'Bildirimler', 'Ses ve Dokunuş', 'Duvar Kağıdı', 'Siri & Arama', 'App Store', 'Gizlilik', 'Yazılım Güncelleme', 'Hakkında', 'Yardım', '<b style="color:red" onclick="location.reload()">Cihazı Sıfırla</b>'];
+                sets.forEach(s => b.innerHTML += `<div class="row" onclick="alert('${s} Aktif!')"><span>${s}</span><span>></span></div>`);
+            } else if(name === 'Kamera') {
+                b.innerHTML = `<video id="v" autoplay playsinline style="width:100%; height:100%; object-fit:cover;"></video>`;
+                navigator.mediaDevices.getUserMedia({video:true}).then(s => document.getElementById('v').srcObject = s);
+            } else if(name === 'Dosyalar') {
+                b.innerHTML = `<div style="padding:20px; text-align:center;"><div style="font-size:80px;">📂</div><h3>Bulut Dosyalarım</h3><div class="row"><span>Admin_Project.unity</span><span>1.2 GB</span></div><div class="row"><span>Valorant_Config.cfg</span><span>4 KB</span></div><div class="row"><span>Arduino_Code.ino</span><span>12 KB</span></div><button style="margin-top:20px; padding:10px; width:100%;">Yeni Dosya Yükle</button></div>`;
+            } else if(name === 'Notlar') {
+                b.innerHTML = `<textarea style="width:100%; height:100%; border:none; padding:20px; font-size:18px; outline:none;" placeholder="Admin notlarını buraya yazar..."></textarea>`;
+            } else if(name === 'YouTube') {
+                b.innerHTML = `<iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" style="width:100%; height:100%;"></iframe>`;
+            } else if(name === 'Hesap') {
+                b.innerHTML = `<iframe src="https://www.desmos.com/scientific?lang=tr" style="width:100%; height:100%;"></iframe>`;
+            } else {
+                b.innerHTML = `<div style="padding:40px; text-align:center;"><h2>${name}</h2><p>Aktif ve kullanıma hazır.</p><button onclick="closeApp()">Geri Dön</button></div>`;
             }
         }
 
-        function doSearch() {
-            const val = document.getElementById('url').value;
-            document.getElementById('browser').src = "https://duckduckgo.com/?q=" + encodeURIComponent(val);
+        function search() {
+            const q = document.getElementById('q').value;
+            document.getElementById('web').src = "https://www.bing.com/search?q=" + encodeURIComponent(q);
         }
 
         function closeApp() {
-            const v = document.getElementById('video');
+            const v = document.getElementById('v');
             if(v && v.srcObject) v.srcObject.getTracks().forEach(t => t.stop());
-            document.getElementById('window').style.display = 'none';
+            document.getElementById('win').style.display = 'none';
         }
 
-        // Sistem Güncelleme
         setInterval(() => {
             const d = new Date();
-            document.getElementById('clock').innerText = d.getHours().toString().padStart(2,'0') + ":" + d.getMinutes().toString().padStart(2,'0');
-            try { navigator.getBattery().then(b => document.getElementById('battery').innerText = Math.floor(b.level * 100)); } catch(e) {}
+            document.getElementById('time').innerText = d.getHours().toString().padStart(2,'0')+":"+d.getMinutes().toString().padStart(2,'0');
+            try { navigator.getBattery().then(b => document.getElementById('bat').innerText = Math.floor(b.level*100)); } catch(e) {}
         }, 1000);
     </script>
 </body>
