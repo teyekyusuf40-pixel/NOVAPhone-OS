@@ -3,143 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nova OS V20 Professional</title>
+    <title>Nova OS V20 Pro</title>
     <style>
-        :root { --blue: #007aff; --glass: rgba(255, 255, 255, 0.2); }
+        :root { --blue: #007aff; --bg: #f2f2f7; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: -apple-system, sans-serif; overflow: hidden; color: black; }
+        body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: -apple-system, sans-serif; overflow: hidden; }
 
-        /* AÇILIŞ VE GÜNCELLEME EKRANI */
-        #boot { position: fixed; inset: 0; background: #000; z-index: 100000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .orb { width: 100px; height: 100px; border-radius: 50%; background: radial-gradient(circle, #fff 0%, transparent 70%); filter: blur(10px); animation: pulse 2s infinite alternate; }
-        .progress-bar { width: 200px; height: 3px; background: #333; margin-top: 30px; border-radius: 5px; overflow: hidden; }
-        #progress-fill { width: 0%; height: 100%; background: #fff; transition: 0.3s; }
-
-        /* KURULUM SİSTEMİ */
-        .setup-screen { position: fixed; inset: 0; background: #fff; z-index: 90000; display: none; flex-direction: column; padding: 40px; align-items: center; justify-content: center; text-align: center; }
-        .setup-card { width: 100%; max-width: 400px; }
-        .setup-card h2 { margin-bottom: 20px; color: #1c1c1e; }
-        .btn { width: 100%; padding: 18px; background: var(--blue); border: none; border-radius: 16px; color: white; font-weight: bold; margin-top: 20px; cursor: pointer; }
-        .btn:disabled { opacity: 0.3; }
+        /* BOOT & GÜNCELLEME */
+        #boot { position: fixed; inset: 0; background: #000; z-index: 100000; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; }
+        .orb { width: 80px; height: 80px; border-radius: 50%; background: radial-gradient(circle, #fff 0%, transparent 70%); filter: blur(10px); animation: pulse 2s infinite alternate; }
+        
+        /* KURULUM EKRANLARI */
+        .setup-screen { position: fixed; inset: 0; background: #fff; z-index: 90000; display: none; flex-direction: column; padding: 30px; align-items: center; justify-content: center; text-align: center; }
+        .setup-card { width: 100%; max-width: 400px; animation: fadeIn 0.5s; }
+        .setup-card h2 { font-size: 28px; margin-bottom: 10px; }
+        .input-group { width: 100%; text-align: left; margin-top: 15px; }
+        input, select { width: 100%; padding: 15px; background: #f2f2f7; border: 1px solid #ddd; border-radius: 12px; font-size: 16px; margin-top: 5px; }
+        .btn { width: 100%; padding: 18px; background: var(--blue); border: none; border-radius: 16px; color: white; font-weight: bold; margin-top: 25px; cursor: pointer; transition: 0.3s; }
+        .btn:disabled { opacity: 0.2; cursor: not-allowed; }
 
         /* KİLİT EKRANI */
-        #lock-screen { position: fixed; inset: 0; background: url('https://images.unsplash.com/photo-1510784722466-f2aa9c520675') center/cover; z-index: 80000; display: none; flex-direction: column; align-items: center; justify-content: space-around; color: white; }
+        #lock-screen { position: fixed; inset: 0; background: url('https://images.unsplash.com/photo-1494253109108-2e30c049369b') center/cover; z-index: 80000; display: none; flex-direction: column; align-items: center; justify-content: space-between; padding: 100px 0; color: white; transition: 0.6s; }
         .lock-time { font-size: 80px; font-weight: 200; }
 
         /* ANA SİSTEM */
-        #os { display: none; height: 100vh; flex-direction: column; background: url('https://images.unsplash.com/photo-1494253109108-2e30c049369b') center/cover; }
-        .status-bar { height: 44px; display: flex; justify-content: space-between; align-items: center; padding: 0 25px; background: rgba(255,255,255,0.2); backdrop-filter: blur(20px); font-size: 14px; color: white; }
+        #os { display: none; height: 100vh; flex-direction: column; background: url('https://images.unsplash.com/photo-1477346611705-65d1883cee1e') center/cover; }
+        .status-bar { height: 44px; display: flex; justify-content: space-between; align-items: center; padding: 0 25px; background: rgba(0,0,0,0.2); backdrop-filter: blur(20px); color: white; font-size: 14px; font-weight: 600; }
         
         .viewport { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 25px; align-content: start; }
-        .app { display: flex; flex-direction: column; align-items: center; }
-        .app-icon { width: 65px; height: 65px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 8px 15px rgba(0,0,0,0.2); }
-        .app span { font-size: 11px; margin-top: 8px; color: white; font-weight: 500; text-shadow: 0 1px 2px #000; }
+        .app { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+        .app-icon { width: 65px; height: 65px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 8px 20px rgba(0,0,0,0.3); transition: 0.2s; }
+        .app-icon:active { transform: scale(0.9); }
+        .app span { font-size: 11px; margin-top: 8px; color: white; font-weight: 500; text-shadow: 0 1px 3px #000; }
 
-        /* PENCERE */
-        #win { position: fixed; inset: 0; background: #f2f2f7; z-index: 20000; display: none; flex-direction: column; animation: slideUp 0.4s ease; }
-        .win-h { height: 60px; display: flex; align-items: center; padding: 0 20px; background: #fff; border-bottom: 1px solid #ddd; justify-content: space-between; }
-        .win-b { flex: 1; overflow-y: auto; }
+        /* PENCERE SİSTEMİ */
+        #win { position: fixed; inset: 0; background: #fff; z-index: 20000; display: none; flex-direction: column; animation: slideUp 0.4s cubic-bezier(0.1, 0.9, 0.2, 1); }
+        .win-h { height: 65px; display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid #eee; justify-content: space-between; }
+        .win-b { flex: 1; overflow-y: auto; background: #f2f2f7; }
 
-        .dock { height: 90px; background: rgba(255,255,255,0.3); backdrop-filter: blur(30px); margin: 15px; border-radius: 30px; display: flex; justify-content: space-around; align-items: center; padding: 0 10px; }
+        .dock { height: 95px; background: rgba(255,255,255,0.2); backdrop-filter: blur(40px); margin: 15px; border-radius: 35px; display: flex; justify-content: space-around; align-items: center; padding: 0 10px; }
 
-        @keyframes pulse { from { opacity: 0.4; transform: scale(0.9); } to { opacity: 1; transform: scale(1.1); } }
+        @keyframes pulse { from { opacity: 0.5; transform: scale(0.9); } to { opacity: 1; transform: scale(1.1); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <div id="boot"><div class="orb"></div><div class="progress-bar"><div id="progress-fill"></div></div><h3 id="boot-text" style="color:white; margin-top:15px; font-weight:300;">Nova OS</h3></div>
+    <div id="boot"><div class="orb"></div><h2 id="boot-text" style="letter-spacing:10px; margin-top:30px;">NOVA OS</h2></div>
 
-    <!-- KURULUM AŞAMALARI (15+ ADIM SİMÜLASYONU) -->
-    <div id="setup-container"></div>
+    <div id="setup-1" class="setup-screen" style="display:none;"><div class="setup-card"><h2>Merhaba</h2><p>Nova OS V20 Pro sürümüne hoş geldiniz. Başlamak için butona dokunun.</p><button class="btn" onclick="nextS('setup-1','setup-2')">Başla</button></div></div>
 
-    <div id="lock-screen" onclick="unlockOS()">
+    <div id="setup-2" class="setup-screen"><div class="setup-card"><h2>Dil Seçimi</h2><p>Sistem dilini belirleyin.</p><select><option>Türkçe (Türkiye)</option><option>English (US)</option><option>Deutsch</option></select><button class="btn" onclick="nextS('setup-2','setup-3')">İleri</button></div></div>
+
+    <div id="setup-3" class="setup-screen"><div class="setup-card"><h2>Wi-Fi Bağlan</h2><p>İnternete bağlanarak özellikleri aktif edin.</p><select><option>Nova_Network_5G</option><option>iPhone_Hotspot</option><option>Ev_Internet_2.4G</option></select><div class="input-group"><input type="password" placeholder="Ağ Şifresi" value="12345678"></div><button class="btn" onclick="nextS('setup-3','setup-4')">Bağlan ve İleri</button></div></div>
+
+    <div id="setup-4" class="setup-screen">
+        <div class="setup-card">
+            <h2>Kullanıcı Sözleşmesi</h2>
+            <div id="contract" style="height: 250px; overflow-y: scroll; background: #f2f2f7; padding: 15px; font-size: 13px; text-align: left; border-radius: 12px; border: 1px solid #ddd; line-height: 1.7;">
+                <strong>NOVA OS V20 LİSANS SÖZLEŞMESİ</strong><br><br>
+                1. KULLANIM ŞARTLARI: Bu işletim sistemi Admin Yusuf tarafından profesyonel kullanım için geliştirilmiştir. <br><br>
+                2. VERİ GİZLİLİĞİ: Tüm kullanıcı verileri yerel hafızada şifrelenmiş olarak saklanır. <br><br>
+                3. YOUTUBE VE MEDYA: Sistem, yerleşik bir YouTube API'si içerir ve geliştirici tarafından belirlenen zorunlu müzik çalma listesini destekler. <br><br>
+                4. GÜNCELLEMELER: V20 sürümüyle birlikte Telefon, SMS ve NurıWEB servisleri tamamen aktiftir. <br><br>
+                5. SORUMLULUK: Sistemi kullanarak tüm kuralları kabul etmiş sayılırsınız. Bu metni en alta kadar kaydırmadan butonu aktif edemezsiniz. <br><br>
+                6. EK MADDELER: Sistem performansı cihazınızın donanımına göre optimize edilir. Uygulama marketinden indirilen içerikler Yusuf'un kontrolündedir. <br><br>
+                (Sözleşme sonuna kadar kaydırın...) <br><br>
+                --- SON ---
+            </div>
+            <button id="agreeBtn" class="btn" disabled onclick="nextS('setup-4','setup-5')">Okudum ve Onaylıyorum</button>
+        </div>
+    </div>
+
+    <div id="setup-5" class="setup-screen"><div class="setup-card"><h2>Profil Oluştur</h2><div class="input-group"><label>Kullanıcı Adı</label><input type="text" id="usrName" value="Admin"></div><div class="input-group"><label>Cihaz Adı</label><input type="text" id="devName" value="Nova-Phone"></div><button class="btn" onclick="finishSetup()">Kurulumu Bitir</button></div></div>
+
+    <div id="fin-screen" class="setup-screen">
+        <div class="orb" style="background: radial-gradient(circle, var(--blue) 0%, transparent 70%);"></div>
+        <h2 style="margin-top:30px;">Sizin için her şeyi ayarlıyoruz...</h2>
+        <p style="opacity:0.5;">Uygulamalar optimize ediliyor.</p>
+    </div>
+
+    <div id="lock-screen" onclick="unlock()">
         <div class="lock-time" id="lock-time">00:00</div>
-        <div style="text-align:center;">Yukarı kaydırarak başla</div>
+        <p style="font-size: 18px; animation: pulse 2s infinite;">Kilidi açmak için dokun</p>
     </div>
 
     <div id="os">
-        <div class="status-bar"><span id="os-clock">00:00</span><span>LTE %100</span></div>
+        <div class="status-bar"><span id="os-clock">00:00</span><span>5G | 100%</span></div>
         <div class="viewport" id="grid"></div>
         <div class="dock">
-            <div onclick="openApp('Telefon')"><div class="app-icon" style="background:#2ecc71; color:white;">📞</div></div>
-            <div onclick="openApp('NurıWEB')"><div class="app-icon" style="background:#fff;">🌐</div></div>
-            <div onclick="openApp('Mesajlar')"><div class="app-icon" style="background:#007aff; color:white;">💬</div></div>
+            <div class="app" onclick="openApp('Telefon')"><div class="app-icon" style="background:#2ecc71; color:white;">📞</div></div>
+            <div class="app" onclick="openApp('NurıWEB')"><div class="app-icon" style="background:#fff;">🌐</div></div>
+            <div class="app" onclick="openApp('Mesajlar')"><div class="app-icon" style="background:#007aff; color:white;">💬</div></div>
         </div>
     </div>
 
     <div id="win">
-        <div class="win-h"><h3 id="win-t" style="margin:0">Uygulama</h3><button onclick="closeWin()" style="border:none; background:none; color:var(--blue); font-weight:bold;">Kapat</button></div>
+        <div class="win-h"><h3 id="win-t" style="margin:0">App</h3><button onclick="closeWin()" style="border:none; background:none; color:var(--blue); font-weight:bold;">Kapat</button></div>
         <div id="win-b" class="win-b"></div>
     </div>
 
     <script>
-        let currentStep = 1;
-        const totalSteps = 15;
-        let isUpdated = false;
+        // BOOT
+        setTimeout(() => { 
+            document.getElementById('boot').style.display = 'none'; 
+            document.getElementById('setup-1').style.display = 'flex'; 
+        }, 3000);
 
-        // KURULUM SAYFALARINI OLUŞTUR
-        const setupSteps = [
-            "Hoş Geldiniz", "Dil Seçimi", "Bölge Ayarları", "Wi-Fi Bağlantısı", "Gizlilik Tercihleri", 
-            "Analiz Raporları", "Kullanım Şartları", "Hesap Oluşturma", "Uygulama İzinleri", "Konum Servisleri",
-            "Güvenlik Kilidi", "Yüz Tanıma", "Tema Seçimi", "Senkronizasyon", "Neredeyse Bitti..."
-        ];
-
-        function initSetup() {
-            const container = document.getElementById('setup-container');
-            setupSteps.forEach((title, i) => {
-                const stepNum = i + 1;
-                container.innerHTML += `
-                    <div id="setup-${stepNum}" class="setup-screen">
-                        <div class="setup-card">
-                            <h2>${title}</h2>
-                            <p>${stepNum === 7 ? '<div id="contract" style="height:150px; overflow-y:scroll; border:1px solid #ddd; padding:10px; font-size:12px; text-align:left;">Nova OS Professional Sürümüne hoş geldiniz. Bu sürümde tüm uygulama özellikleri açık ve aktif olarak sunulmaktadır. Verileriniz yerel cihazınızda saklanır. (Kaydırın...) <br><br> Bu sözleşme 20 sayfalık yasal prosedürü kapsamaktadır. Kaydırdığınızda kabul etmiş sayılırsınız.</div>' : 'Bu adım sistem yapılandırması için gereklidir.'}</p>
-                            ${stepNum === 8 ? '<input type="text" id="username" placeholder="Kullanıcı Adı" value="Admin">' : ''}
-                            <button class="btn" id="btn-${stepNum}" ${stepNum === 7 ? 'disabled' : ''} onclick="nextStep(${stepNum})">İleri</button>
-                        </div>
-                    </div>`;
-            });
-            
-            // Sözleşme kontrolü
-            setTimeout(() => {
-                const scrollArea = document.getElementById('contract');
-                if(scrollArea) scrollArea.onscroll = () => { if(scrollArea.scrollHeight - scrollArea.scrollTop <= scrollArea.clientHeight + 10) document.getElementById('btn-7').disabled = false; };
-            }, 1000);
+        function nextS(curr, next) {
+            document.getElementById(curr).style.display = 'none';
+            document.getElementById(next).style.display = 'flex';
         }
 
-        function startBoot() {
-            let p = 0;
-            const fill = document.getElementById('progress-fill');
-            let itv = setInterval(() => {
-                p += 5; fill.style.width = p + "%";
-                if(p >= 100) {
-                    clearInterval(itv);
-                    document.getElementById('boot').style.display = 'none';
-                    document.getElementById('setup-1').style.display = 'flex';
-                }
-            }, 100);
-        }
-
-        function nextStep(step) {
-            document.getElementById(`setup-${step}`).style.display = 'none';
-            if(step < totalSteps) {
-                document.getElementById(`setup-${step+1}`).style.display = 'flex';
-            } else {
-                finalizeSetup();
+        // SÖZLEŞME KONTROLÜ
+        const contract = document.getElementById('contract');
+        contract.onscroll = () => {
+            if (contract.scrollHeight - contract.scrollTop <= contract.clientHeight + 10) {
+                let b = document.getElementById('agreeBtn');
+                b.disabled = false; b.style.opacity = '1';
             }
-        }
+        };
 
-        function finalizeSetup() {
-            const fin = document.createElement('div');
-            fin.className = 'setup-screen';
-            fin.style.display = 'flex';
-            fin.innerHTML = '<h2>Sizin için her şeyi ayarlıyoruz...</h2><div class="orb"></div>';
-            document.body.appendChild(fin);
+        function finishSetup() {
+            document.getElementById('setup-5').style.display = 'none';
+            document.getElementById('fin-screen').style.display = 'flex';
             setTimeout(() => {
-                fin.style.display = 'none';
+                document.getElementById('fin-screen').style.display = 'none';
                 document.getElementById('lock-screen').style.display = 'flex';
                 renderApps();
             }, 3000);
+        }
+
+        function unlock() {
+            document.getElementById('lock-screen').style.transform = "translateY(-100%)";
+            document.getElementById('os').style.display = 'flex';
+        }
+
+        function renderApps() {
+            const apps = [
+                {n:'YouTube', i:'🎬', c:'#ff0000'},
+                {n:'Kamera', i:'📷', c:'#333'},
+                {n:'Ayarlar', i:'⚙️', c:'#8e8e93'},
+                {n:'Müzik', i:'🎵', c:'#ff9500'},
+                {n:'Harita', i:'📍', c:'#34c759'},
+                {n:'Market', i:'🛍️', c:'#af52de'}
+            ];
+            const grid = document.getElementById('grid');
+            grid.innerHTML = "";
+            apps.forEach(a => grid.innerHTML += `<div class="app" onclick="openApp('${a.n}')"><div class="app-icon" style="background:${a.c}">${a.i}</div><span>${a.n}</span></div>`);
         }
 
         function openApp(name) {
@@ -151,62 +163,31 @@
             if(name === 'YouTube') {
                 b.innerHTML = `
                     <div style="height:100%; display:flex; flex-direction:column;">
-                        <iframe src="https://www.youtube.com/embed?listType=search&list=Valorant+Clips" style="width:100%; height:300px; border:none;"></iframe>
-                        <div style="background:#000; color:white; padding:20px; flex:1; border-top:5px solid #ff0000;">
-                            <h4>🎵 Yusuf Özel Playlist</h4>
-                            <div style="display:flex; align-items:center; gap:15px; background:#222; padding:15px; border-radius:12px;">
+                        <div style="background:#fff; padding:10px; border-bottom:1px solid #ddd;">
+                            <input type="text" id="ytSearch" placeholder="YouTube'da ara..." style="width:75%; padding:10px; border-radius:8px; border:1px solid #ccc;">
+                            <button onclick="alert('Aranıyor...')" style="padding:10px; border:none; background:red; color:white; border-radius:8px;">Ara</button>
+                        </div>
+                        <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" style="width:100%; height:250px; border:none;"></iframe>
+                        <div style="flex:1; background:#000; color:white; padding:20px; border-top:4px solid red;">
+                            <h3>🎵 ZORUNLU OYNATMA LİSTESİ</h3>
+                            <div style="background:#222; padding:15px; border-radius:12px; display:flex; align-items:center; gap:10px;">
                                 <div style="font-size:30px;">▶️</div>
-                                <div><b>Şu an çalıyor:</b> Nova OS - Bass Boosted Mix</div>
+                                <div><b>Yusuf'un Seçimi:</b> Nova Bass 2026<br><small>Bu parça her zaman aktiftir.</small></div>
                             </div>
-                            <p style="font-size:12px; margin-top:10px; opacity:0.6;">Bu parça Admin tarafından zorunlu kılınmıştır.</p>
                         </div>
                     </div>`;
             } else if(name === 'Telefon') {
-                b.innerHTML = `<div style="text-align:center; padding-top:20px;"><h1 id="dial"></h1><div style="display:grid; grid-template-columns:repeat(3,1fr); gap:15px; padding:20px;">${[1,2,3,4,5,6,7,8,9,'*',0,'#'].map(x=>`<button style="height:70px; border-radius:50%; border:none; background:#ddd; font-size:24px;" onclick="document.getElementById('dial').innerText+='${x}'">${x}</button>`).join('')}</div><button style="width:80%; padding:20px; background:#2ecc71; color:white; border-radius:40px; border:none; font-weight:bold;">ARA</button></div>`;
-            } else if(name === 'Ayarlar') {
-                b.innerHTML = `<div style="padding:20px;"><h3>Genel</h3><div style="background:#fff; border-radius:12px; padding:15px; margin-bottom:10px;">Kullanıcı: ${document.getElementById('username')?.value || 'Admin'}<br>Sürüm: ${isUpdated ? 'V20 Pro' : 'V16'}</div><button class="btn" onclick="runUpdate()">Yazılım Güncelleme</button></div>`;
+                b.innerHTML = `<div style="text-align:center; padding:20px;"><h1 id="num"></h1><div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:20px;">${[1,2,3,4,5,6,7,8,9,'*',0,'#'].map(x=>`<button style="height:70px; border-radius:50%; border:none; background:#ddd; font-size:24px;" onclick="document.getElementById('num').innerText+='${x}'">${x}</button>`).join('')}</div><button style="width:80%; padding:20px; background:#2ecc71; color:white; border-radius:40px; border:none; font-weight:bold;">ARA</button></div>`;
             } else if(name === 'Mesajlar') {
-                b.innerHTML = `<div style="padding:15px;"><div style="background:#fff; padding:15px; border-radius:12px; margin-bottom:10px;"><b>Mehmet:</b> Yeni Nova OS gerçekten çok hızlı olmuş!</div><div style="background:#fff; padding:15px; border-radius:12px;"><b>Sistem:</b> Tüm özellikler aktif edildi.</div></div>`;
-            } else {
-                b.innerHTML = `<div style="padding:40px; text-align:center;"><h2>${name}</h2><p>Nova OS Professional Uygulaması</p></div>`;
+                b.innerHTML = `<div style="padding:15px;"><div style="background:#fff; padding:15px; border-radius:12px; margin-bottom:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1);"><b>Mehmet:</b> Yeni Nova OS V20 Pro'yu çok beğendim, harika olmuş!</div><div style="background:#fff; padding:15px; border-radius:12px; box-shadow:0 2px 5px rgba(0,0,0,0.1);"><b>Sistem:</b> Hoş geldin ${document.getElementById('usrName').value}, tüm servisler aktif.</div></div>`;
+            } else if(name === 'NurıWEB') {
+                b.innerHTML = `<div style="padding:20px; text-align:center;"><input type="text" placeholder="Web'de ara..." style="width:100%; padding:15px; border-radius:12px; border:1px solid #ccc;"><button class="btn">Git</button><div style="margin-top:20px; text-align:left; background:white; padding:15px; border-radius:12px;">En çok aranan: Nova OS Pro Özellikleri</div></div>`;
+            } else if(name === 'Ayarlar') {
+                b.innerHTML = `<div style="padding:20px;"><h3>Genel Bilgiler</h3><div style="background:#fff; padding:15px; border-radius:12px;">Kullanıcı: ${document.getElementById('usrName').value}<br>Cihaz: ${document.getElementById('devName').value}<br>Sürüm: Nova OS V20 Pro</div><button class="btn" onclick="location.reload()">Sistemi Sıfırla</button></div>`;
             }
         }
 
-        function runUpdate() {
-            closeWin();
-            const boot = document.getElementById('boot');
-            boot.style.display = 'flex';
-            document.getElementById('boot-text').innerText = "V20 Güncellemesi Yükleniyor...";
-            let p = 0;
-            let itv = setInterval(() => {
-                p += 2; document.getElementById('progress-fill').style.width = p + "%";
-                if(p >= 100) {
-                    clearInterval(itv);
-                    isUpdated = true;
-                    // TAKILMA SORUNU ÇÖZÜLDÜ: Doğrudan Kilit Ekranına
-                    setTimeout(() => {
-                        boot.style.display = 'none';
-                        document.getElementById('lock-screen').style.display = 'flex';
-                        alert("Güncelleme Başarıyla Tamamlandı!");
-                    }, 500);
-                }
-            }, 50);
-        }
-
-        function renderApps() {
-            const grid = document.getElementById('grid');
-            const apps = ['YouTube', 'Kamera', 'Ayarlar', 'Dosyalar', 'Müzik', 'Harita'];
-            grid.innerHTML = "";
-            apps.forEach(a => {
-                grid.innerHTML += `<div class="app" onclick="openApp('${a}')"><div class="app-icon" style="background:#fff;">${a==='YouTube'?'🔴':'📱'}</div><span>${a}</span></div>`;
-            });
-        }
-
-        function unlockOS() { document.getElementById('lock-screen').style.transform = "translateY(-100%)"; document.getElementById('os').style.display = "flex"; }
         function closeWin() { document.getElementById('win').style.display = 'none'; }
-
-        initSetup();
-        startBoot();
 
         setInterval(() => {
             const d = new Date(); const t = d.getHours().toString().padStart(2,'0')+":"+d.getMinutes().toString().padStart(2,'0');
