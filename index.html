@@ -3,156 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nova OS V20 Pro - Gaming Edition</title>
+    <title>Nova OS V20 Pro - Pro Gaming</title>
     <style>
-        :root { --blue: #007aff; --bg: #000; }
-        * { box-sizing: border-box; font-family: -apple-system, sans-serif; overflow: hidden; }
-        body { margin: 0; background: var(--bg); color: white; height: 100vh; display: flex; align-items: center; justify-content: center; }
+        :root { --blue: #007aff; }
+        * { box-sizing: border-box; font-family: sans-serif; overflow: hidden; touch-action: none; }
+        body { margin: 0; background: #000; color: white; height: 100vh; display: flex; align-items: center; justify-content: center; }
 
-        /* AÇILIŞ EKRANI */
+        /* AÇILIŞ */
         #boot { position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .logo { font-size: 40px; letter-spacing: 10px; font-weight: 200; margin-bottom: 20px; }
-        .loader { width: 200px; height: 4px; background: #333; border-radius: 2px; }
-        .progress { width: 0%; height: 100%; background: var(--blue); transition: 5s linear; }
+        .logo { font-size: 35px; letter-spacing: 8px; margin-bottom: 20px; color: var(--blue); }
+        .progress-bar { width: 150px; height: 4px; background: #222; border-radius: 10px; }
+        .progress-fill { width: 0%; height: 100%; background: var(--blue); transition: 5s linear; }
 
-        /* ANA EKRAN */
-        #os { display: none; width: 100%; height: 100%; flex-direction: column; padding: 20px; background: #1c1c1e; }
-        .header { text-align: center; margin-bottom: 30px; color: var(--blue); font-weight: bold; }
-        .app-container { display: flex; flex-direction: column; gap: 20px; align-items: center; justify-content: center; flex: 1; }
-        .big-app { width: 90%; max-width: 400px; height: 180px; border-radius: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .big-app:active { transform: scale(0.95); }
-        .snake-btn { background: linear-gradient(135deg, #2ecc71, #27ae60); }
-        .car-btn { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        /* MASAÜSTÜ */
+        #os { display: none; width: 100%; height: 100%; flex-direction: column; padding: 20px; background: #111; }
+        .app-grid { display: flex; flex-direction: column; gap: 25px; align-items: center; justify-content: center; flex: 1; }
+        .game-card { width: 100%; max-width: 350px; height: 150px; border-radius: 25px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: bold; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        .snake-card { background: linear-gradient(45deg, #1db954, #191414); border: 2px solid #1db954; }
+        .car-card { background: linear-gradient(45deg, #ff4b2b, #ff416c); border: 2px solid #ff4b2b; }
 
-        /* OYUN PENCERESİ */
-        #game-win { position: fixed; inset: 0; background: #000; z-index: 500; display: none; flex-direction: column; }
-        canvas { background: #111; display: block; margin: auto; border: 2px solid #333; }
-        .controls { height: 150px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 10px; }
-        .ctrl-btn { background: #333; border: none; color: white; border-radius: 15px; font-size: 20px; }
-        .close-btn { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.2); border: none; color: white; padding: 10px 20px; border-radius: 10px; z-index: 600; }
+        /* OYUN EKRANI */
+        #game-overlay { position: fixed; inset: 0; background: #000; z-index: 500; display: none; flex-direction: column; }
+        canvas { background: #050505; display: block; margin: auto; border-bottom: 2px solid #333; }
+        .game-ui { height: 180px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 15px; background: #111; }
+        .btn { background: #222; border: 1px solid #444; color: white; border-radius: 20px; font-size: 24px; display: flex; align-items: center; justify-content: center; }
+        .btn:active { background: #444; }
+        .exit { position: absolute; top: 15px; right: 15px; background: red; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <!-- BOOT -->
     <div id="boot">
         <div class="logo">NOVA OS</div>
-        <div style="margin-bottom: 10px; font-size: 14px; color: #888;">Admin Yusuf için hazırlanıyor...</div>
-        <div class="loader"><div class="progress" id="prg"></div></div>
+        <div class="progress-bar"><div class="progress-fill" id="fill"></div></div>
     </div>
 
-    <!-- OS -->
     <div id="os">
-        <div class="header">NOVA OS V20 PRO</div>
-        <div class="app-container">
-            <div class="big-app snake-btn" onclick="startSnake()">🐍 YILAN OYUNU</div>
-            <div class="big-app car-btn" onclick="startCar()">🏎️ ARABA YARIŞI</div>
+        <div style="text-align:center; font-weight:bold; padding: 10px;">NOVA OS V20 PRO - GAMING</div>
+        <div class="app-grid">
+            <div class="game-card snake-card" onclick="initSnake()">🐍 YILAN V2</div>
+            <div class="game-card car-card" onclick="initCar()">🏎️ GERÇEKÇİ YARIŞ</div>
         </div>
     </div>
 
-    <!-- GAME WINDOW -->
-    <div id="game-win">
-        <button class="close-btn" onclick="closeGame()">KAPAT</button>
-        <canvas id="gameCanvas"></canvas>
-        <div id="snake-ctrl" class="controls" style="display:none;">
-            <div></div><button class="ctrl-btn" onclick="changeDir('UP')">▲</button><div></div>
-            <button class="ctrl-btn" onclick="changeDir('LEFT')">◀</button>
-            <button class="ctrl-btn" onclick="changeDir('DOWN')">▼</button>
-            <button class="ctrl-btn" onclick="changeDir('RIGHT')">▶</button>
+    <div id="game-overlay">
+        <button class="exit" onclick="stopAll()">KAPAT</button>
+        <canvas id="c"></canvas>
+        <div id="snake-btns" class="game-ui" style="display:none;">
+            <div></div><div class="btn" onclick="dir='UP'">▲</div><div></div>
+            <div class="btn" onclick="dir='LEFT'">◀</div><div class="btn" onclick="dir='DOWN'">▼</div><div class="btn" onclick="dir='RIGHT'">▶</div>
         </div>
-        <div id="car-ctrl" class="controls" style="display:none;">
-            <button class="ctrl-btn" style="grid-column: 1" onmousedown="moveCar('LEFT')" onmouseup="stopCar()">◀ SOL</button>
+        <div id="car-btns" class="game-ui" style="display:none;">
+            <div class="btn" ontouchstart="carM=-8" ontouchend="carM=0" onmousedown="carM=-8" onmouseup="carM=0">◀ SOL</div>
             <div></div>
-            <button class="ctrl-btn" style="grid-column: 3" onmousedown="moveCar('RIGHT')" onmouseup="stopCar()">SAĞ ▶</button>
+            <div class="btn" ontouchstart="carM=8" ontouchend="carM=0" onmousedown="carM=8" onmouseup="carM=0">SAĞ ▶</div>
         </div>
     </div>
 
     <script>
-        // BOOT SEQUENCE
-        const prg = document.getElementById('prg');
-        setTimeout(() => prg.style.width = '100%', 100);
-        setTimeout(() => {
-            document.getElementById('boot').style.display = 'none';
-            document.getElementById('os').style.display = 'flex';
-        }, 5100);
+        // BOOT
+        setTimeout(() => document.getElementById('fill').style.width = '100%', 100);
+        setTimeout(() => { document.getElementById('boot').style.display='none'; document.getElementById('os').style.display='flex'; }, 5000);
 
-        const canvas = document.getElementById('gameCanvas');
+        const canvas = document.getElementById('c');
         const ctx = canvas.getContext('2d');
-        let gameInterval;
-        let currentGame = "";
+        let loop, dir, carM = 0;
 
-        // SNAKE GAME LOGIC
-        let snake, food, direction, score;
-        function startSnake() {
-            currentGame = "SNAKE";
-            document.getElementById('game-win').style.display = 'flex';
-            document.getElementById('snake-ctrl').style.display = 'grid';
+        // YILAN OYUNU
+        let snk, fd, snkLen;
+        function initSnake() {
+            document.getElementById('game-overlay').style.display='flex';
+            document.getElementById('snake-btns').style.display='grid';
             canvas.width = 300; canvas.height = 300;
-            snake = [{x: 10, y: 10}];
-            food = {x: 15, y: 15};
-            direction = 'RIGHT';
-            gameInterval = setInterval(drawSnake, 150);
+            snk = [{x:10, y:10}, {x:9, y:10}];
+            fd = {x:15, y:15}; dir = 'RIGHT';
+            loop = setInterval(drawSnake, 120);
         }
 
         function drawSnake() {
-            ctx.fillStyle = "black"; ctx.fillRect(0,0,300,300);
-            let headX = snake[0].x; let headY = snake[0].y;
-            if(direction == 'UP') headY--; if(direction == 'DOWN') headY++;
-            if(direction == 'LEFT') headX--; if(direction == 'RIGHT') headX++;
-            
-            if(headX == food.x && headY == food.y) {
-                food = {x: Math.floor(Math.random()*19), y: Math.floor(Math.random()*19)};
-            } else { snake.pop(); }
-            
-            let newHead = {x: headX, y: headY};
-            if(headX<0 || headX>19 || headY<0 || headY>19) return gameOver();
-            snake.unshift(newHead);
-            
-            ctx.fillStyle = "red"; ctx.fillRect(food.x*15, food.y*15, 14, 14);
-            ctx.fillStyle = "#2ecc71";
-            snake.forEach(p => ctx.fillRect(p.x*15, p.y*15, 14, 14));
-        }
+            ctx.fillStyle = '#000'; ctx.fillRect(0,0,300,300);
+            let hX = snk[0].x, hY = snk[0].y;
+            if(dir=='UP') hY--; if(dir=='DOWN') hY++; if(dir=='LEFT') hX--; if(dir=='RIGHT') hX++;
 
-        function changeDir(d) { direction = d; }
+            if(hX==fd.x && hY==fd.y) {
+                fd = {x:Math.floor(Math.random()*19), y:Math.floor(Math.random()*19)};
+            } else { snk.pop(); }
 
-        // CAR GAME LOGIC
-        let carX, obstacles;
-        function startCar() {
-            currentGame = "CAR";
-            document.getElementById('game-win').style.display = 'flex';
-            document.getElementById('car-ctrl').style.display = 'grid';
-            canvas.width = 300; canvas.height = 400;
-            carX = 135; obstacles = [];
-            gameInterval = setInterval(drawCar, 30);
-        }
+            if(hX<0 || hX>19 || hY<0 || hY>19) return end();
+            snk.unshift({x:hX, y:hY});
 
-        function drawCar() {
-            ctx.fillStyle = "#222"; ctx.fillRect(0,0,300,400);
-            ctx.fillStyle = "white"; ctx.fillRect(148, 0, 4, 400); // Yol çizgisi
-            
-            ctx.fillStyle = "#3498db"; ctx.fillRect(carX, 330, 30, 50); // Oyuncu arabası
-            
-            if(Math.random() < 0.05) obstacles.push({x: Math.random()*270, y: -50});
-            ctx.fillStyle = "#e74c3c";
-            obstacles.forEach((o, i) => {
-                o.y += 5;
-                ctx.fillRect(o.x, o.y, 30, 50);
-                if(o.y > 400) obstacles.splice(i, 1);
-                if(o.y > 300 && o.y < 380 && o.x < carX+30 && o.x+30 > carX) gameOver();
+            ctx.font = "15px Arial";
+            ctx.fillText("🍎", fd.x*15, fd.y*15 + 12);
+            snk.forEach((p, i) => {
+                ctx.fillStyle = i==0 ? "#2ecc71" : "#27ae60";
+                ctx.fillRect(p.x*15, p.y*15, 14, 14);
             });
         }
 
-        let carMove = 0;
-        function moveCar(d) { carMove = d === 'LEFT' ? -8 : 8; }
-        function stopCar() { carMove = 0; }
-        setInterval(() => { if(carMove) { carX += carMove; if(carX<0)carX=0; if(carX>270)carX=270; } }, 30);
+        // ARABA OYUNU
+        let pX, obs;
+        function initCar() {
+            document.getElementById('game-overlay').style.display='flex';
+            document.getElementById('car-btns').style.display='grid';
+            canvas.width = 300; canvas.height = 400;
+            pX = 135; obs = [];
+            loop = setInterval(drawCar, 30);
+        }
 
-        function gameOver() { alert("OYUN BİTTİ!"); closeGame(); }
-        function closeGame() {
-            clearInterval(gameInterval);
-            document.getElementById('game-win').style.display = 'none';
-            document.getElementById('snake-ctrl').style.display = 'none';
-            document.getElementById('car-ctrl').style.display = 'none';
+        function drawCar() {
+            ctx.fillStyle = '#222'; ctx.fillRect(0,0,300,400);
+            ctx.strokeStyle = '#fff'; ctx.setLineDash([20, 20]);
+            ctx.beginPath(); ctx.moveTo(150,0); ctx.lineTo(150,400); ctx.stroke(); // Yol çizgisi
+            
+            pX += carM; 
+            if(pX<10) pX=10; if(pX>260) pX=260;
+            
+            ctx.font = "40px Arial";
+            ctx.fillText("🏎️", pX, 380); // Oyuncu Araba
+
+            if(Math.random()<0.04) obs.push({x: Math.random()*250, y: -50});
+            obs.forEach((o, i) => {
+                o.y += 6;
+                ctx.fillText("🚔", o.x, o.y); // Rakip Araba
+                if(o.y>400) obs.splice(i, 1);
+                if(o.y>340 && o.y<390 && Math.abs(o.x - pX) < 25) end();
+            });
+        }
+
+        function end() { alert("NOVA OS: OYUN BİTTİ!"); stopAll(); }
+        function stopAll() {
+            clearInterval(loop);
+            document.getElementById('game-overlay').style.display='none';
+            document.getElementById('snake-btns').style.display='none';
+            document.getElementById('car-btns').style.display='none';
         }
     </script>
 </body>
