@@ -6,42 +6,39 @@
     <title>Nova OS V20 Pro</title>
     <style>
         :root { --blue: #007aff; --bg: #f2f2f7; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: -apple-system, sans-serif; overflow: hidden; }
 
-        /* BOOT & GÜNCELLEME */
+        /* AÇILIŞ EKRANI */
         #boot { position: fixed; inset: 0; background: #000; z-index: 100000; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; }
-        .orb { width: 80px; height: 80px; border-radius: 50%; background: radial-gradient(circle, #fff 0%, transparent 70%); filter: blur(10px); animation: pulse 2s infinite alternate; }
+        .orb { width: 90px; height: 90px; border-radius: 50%; background: radial-gradient(circle, #fff 0%, transparent 70%); filter: blur(12px); animation: pulse 2s infinite alternate; }
         
-        /* KURULUM EKRANLARI */
+        /* KURULUM SİSTEMİ */
         .setup-screen { position: fixed; inset: 0; background: #fff; z-index: 90000; display: none; flex-direction: column; padding: 30px; align-items: center; justify-content: center; text-align: center; }
-        .setup-card { width: 100%; max-width: 400px; animation: fadeIn 0.5s; }
-        .setup-card h2 { font-size: 28px; margin-bottom: 10px; }
+        .setup-card { width: 100%; max-width: 420px; animation: fadeIn 0.6s; }
         .input-group { width: 100%; text-align: left; margin-top: 15px; }
-        input, select { width: 100%; padding: 15px; background: #f2f2f7; border: 1px solid #ddd; border-radius: 12px; font-size: 16px; margin-top: 5px; }
-        .btn { width: 100%; padding: 18px; background: var(--blue); border: none; border-radius: 16px; color: white; font-weight: bold; margin-top: 25px; cursor: pointer; transition: 0.3s; }
-        .btn:disabled { opacity: 0.2; cursor: not-allowed; }
+        input, select { width: 100%; padding: 15px; background: #f2f2f7; border: 1px solid #ddd; border-radius: 14px; font-size: 16px; margin-top: 5px; }
+        .btn { width: 100%; padding: 18px; background: var(--blue); border: none; border-radius: 18px; color: white; font-weight: bold; margin-top: 25px; cursor: pointer; }
+        .btn:disabled { opacity: 0.2; }
 
         /* KİLİT EKRANI */
-        #lock-screen { position: fixed; inset: 0; background: url('https://images.unsplash.com/photo-1494253109108-2e30c049369b') center/cover; z-index: 80000; display: none; flex-direction: column; align-items: center; justify-content: space-between; padding: 100px 0; color: white; transition: 0.6s; }
-        .lock-time { font-size: 80px; font-weight: 200; }
+        #lock-screen { position: fixed; inset: 0; background: url('https://images.unsplash.com/photo-1494253109108-2e30c049369b') center/cover; z-index: 80000; display: none; flex-direction: column; align-items: center; justify-content: space-between; padding: 100px 0; color: white; transition: 0.8s; }
+        .lock-time { font-size: 85px; font-weight: 200; }
 
         /* ANA SİSTEM */
         #os { display: none; height: 100vh; flex-direction: column; background: url('https://images.unsplash.com/photo-1477346611705-65d1883cee1e') center/cover; }
-        .status-bar { height: 44px; display: flex; justify-content: space-between; align-items: center; padding: 0 25px; background: rgba(0,0,0,0.2); backdrop-filter: blur(20px); color: white; font-size: 14px; font-weight: 600; }
-        
+        .status-bar { height: 44px; display: flex; justify-content: space-between; align-items: center; padding: 0 25px; background: rgba(0,0,0,0.3); backdrop-filter: blur(25px); color: white; font-size: 14px; font-weight: 600; }
         .viewport { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 25px; align-content: start; }
         .app { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
-        .app-icon { width: 65px; height: 65px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 8px 20px rgba(0,0,0,0.3); transition: 0.2s; }
-        .app-icon:active { transform: scale(0.9); }
-        .app span { font-size: 11px; margin-top: 8px; color: white; font-weight: 500; text-shadow: 0 1px 3px #000; }
+        .app-icon { width: 68px; height: 68px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        .app span { font-size: 11px; margin-top: 8px; color: white; font-weight: 500; text-shadow: 0 1px 4px #000; }
 
-        /* PENCERE SİSTEMİ */
-        #win { position: fixed; inset: 0; background: #fff; z-index: 20000; display: none; flex-direction: column; animation: slideUp 0.4s cubic-bezier(0.1, 0.9, 0.2, 1); }
+        /* PENCERE */
+        #win { position: fixed; inset: 0; background: #fff; z-index: 20000; display: none; flex-direction: column; animation: slideUp 0.5s ease-out; }
         .win-h { height: 65px; display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid #eee; justify-content: space-between; }
         .win-b { flex: 1; overflow-y: auto; background: #f2f2f7; }
 
-        .dock { height: 95px; background: rgba(255,255,255,0.2); backdrop-filter: blur(40px); margin: 15px; border-radius: 35px; display: flex; justify-content: space-around; align-items: center; padding: 0 10px; }
+        .dock { height: 95px; background: rgba(255,255,255,0.25); backdrop-filter: blur(40px); margin: 15px; border-radius: 35px; display: flex; justify-content: space-around; align-items: center; border: 1px solid rgba(255,255,255,0.2); }
 
         @keyframes pulse { from { opacity: 0.5; transform: scale(0.9); } to { opacity: 1; transform: scale(1.1); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -50,45 +47,46 @@
 </head>
 <body>
 
-    <div id="boot"><div class="orb"></div><h2 id="boot-text" style="letter-spacing:10px; margin-top:30px;">NOVA OS</h2></div>
+    <!-- SİSTEM SESLERİ -->
+    <audio id="startSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
 
-    <div id="setup-1" class="setup-screen" style="display:none;"><div class="setup-card"><h2>Merhaba</h2><p>Nova OS V20 Pro sürümüne hoş geldiniz. Başlamak için butona dokunun.</p><button class="btn" onclick="nextS('setup-1','setup-2')">Başla</button></div></div>
+    <div id="boot"><div class="orb"></div><h2 style="letter-spacing:10px; margin-top:30px;">NOVA OS</h2></div>
 
-    <div id="setup-2" class="setup-screen"><div class="setup-card"><h2>Dil Seçimi</h2><p>Sistem dilini belirleyin.</p><select><option>Türkçe (Türkiye)</option><option>English (US)</option><option>Deutsch</option></select><button class="btn" onclick="nextS('setup-2','setup-3')">İleri</button></div></div>
+    <!-- KURULUM ADIMLARI -->
+    <div id="setup-1" class="setup-screen" style="display:none;"><div class="setup-card"><h2>Nova OS V20</h2><p>Profesyonel kuruluma hoş geldiniz.</p><button class="btn" onclick="nextS('setup-1','setup-2')">Başlat</button></div></div>
+    
+    <div id="setup-2" class="setup-screen"><div class="setup-card"><h2>Ağ Ayarları</h2><select><option>Nova_Network_High</option><option>iPhone_15_WiFi</option></select><input type="password" placeholder="Şifre" value="nova-v20-pro"><button class="btn" onclick="nextS('setup-2','setup-3')">Bağlan</button></div></div>
 
-    <div id="setup-3" class="setup-screen"><div class="setup-card"><h2>Wi-Fi Bağlan</h2><p>İnternete bağlanarak özellikleri aktif edin.</p><select><option>Nova_Network_5G</option><option>iPhone_Hotspot</option><option>Ev_Internet_2.4G</option></select><div class="input-group"><input type="password" placeholder="Ağ Şifresi" value="12345678"></div><button class="btn" onclick="nextS('setup-3','setup-4')">Bağlan ve İleri</button></div></div>
-
-    <div id="setup-4" class="setup-screen">
+    <div id="setup-3" class="setup-screen">
         <div class="setup-card">
             <h2>Kullanıcı Sözleşmesi</h2>
-            <div id="contract" style="height: 250px; overflow-y: scroll; background: #f2f2f7; padding: 15px; font-size: 13px; text-align: left; border-radius: 12px; border: 1px solid #ddd; line-height: 1.7;">
-                <strong>NOVA OS V20 LİSANS SÖZLEŞMESİ</strong><br><br>
-                1. KULLANIM ŞARTLARI: Bu işletim sistemi Admin Yusuf tarafından profesyonel kullanım için geliştirilmiştir. <br><br>
-                2. VERİ GİZLİLİĞİ: Tüm kullanıcı verileri yerel hafızada şifrelenmiş olarak saklanır. <br><br>
-                3. YOUTUBE VE MEDYA: Sistem, yerleşik bir YouTube API'si içerir ve geliştirici tarafından belirlenen zorunlu müzik çalma listesini destekler. <br><br>
-                4. GÜNCELLEMELER: V20 sürümüyle birlikte Telefon, SMS ve NurıWEB servisleri tamamen aktiftir. <br><br>
-                5. SORUMLULUK: Sistemi kullanarak tüm kuralları kabul etmiş sayılırsınız. Bu metni en alta kadar kaydırmadan butonu aktif edemezsiniz. <br><br>
-                6. EK MADDELER: Sistem performansı cihazınızın donanımına göre optimize edilir. Uygulama marketinden indirilen içerikler Yusuf'un kontrolündedir. <br><br>
-                (Sözleşme sonuna kadar kaydırın...) <br><br>
-                --- SON ---
+            <div id="contract" style="height: 250px; overflow-y: scroll; background: #f2f2f7; padding: 15px; font-size: 13px; text-align: left; border-radius: 12px; border: 1px solid #ddd; line-height: 1.8;">
+                <strong>MADDE 1: GENEL KURALLAR</strong><br>Bu sistem Admin Yusuf tarafından her türlü donanımda akıcı çalışacak şekilde optimize edilmiştir. YouTube ve SMS servisleri aktiftir. <br><br>
+                <strong>MADDE 2: GÜVENLİK</strong><br>V20 sürümüyle birlikte kilit ekranı ve profil şifreleme özellikleri eklenmiştir. <br><br>
+                <strong>MADDE 3: WEB KULLANIMI</strong><br>NurıWEB artık gerçek Google arama motorunu kullanmaktadır. <br><br>
+                (Lütfen butonu aktif etmek için en alta kadar kaydırın...) <br><br>
+                <strong>MADDE 4: OYUNLAR</strong><br>Sistemle birlikte gelen 2D oyunların tüm hakları saklıdır. <br><br>
+                --- LİSANS SONU ---
             </div>
-            <button id="agreeBtn" class="btn" disabled onclick="nextS('setup-4','setup-5')">Okudum ve Onaylıyorum</button>
+            <button id="agreeBtn" class="btn" disabled onclick="nextS('setup-3','setup-4')">Onaylıyorum</button>
         </div>
     </div>
 
-    <div id="setup-5" class="setup-screen"><div class="setup-card"><h2>Profil Oluştur</h2><div class="input-group"><label>Kullanıcı Adı</label><input type="text" id="usrName" value="Admin"></div><div class="input-group"><label>Cihaz Adı</label><input type="text" id="devName" value="Nova-Phone"></div><button class="btn" onclick="finishSetup()">Kurulumu Bitir</button></div></div>
+    <div id="setup-4" class="setup-screen"><div class="setup-card"><h2>Kullanıcı Profilini Kaydet</h2><input type="text" id="usrName" value="Admin Yusuf"><button class="btn" onclick="finishSetup()">Sistemi Başlat</button></div></div>
 
     <div id="fin-screen" class="setup-screen">
         <div class="orb" style="background: radial-gradient(circle, var(--blue) 0%, transparent 70%);"></div>
         <h2 style="margin-top:30px;">Sizin için her şeyi ayarlıyoruz...</h2>
-        <p style="opacity:0.5;">Uygulamalar optimize ediliyor.</p>
+        <p id="fin-text" style="opacity:0.5;">Uygulamalar optimize ediliyor.</p>
     </div>
 
+    <!-- KİLİT EKRANI -->
     <div id="lock-screen" onclick="unlock()">
         <div class="lock-time" id="lock-time">00:00</div>
-        <p style="font-size: 18px; animation: pulse 2s infinite;">Kilidi açmak için dokun</p>
+        <p style="font-size: 18px;">Açmak için dokunun</p>
     </div>
 
+    <!-- ANA EKRAN -->
     <div id="os">
         <div class="status-bar"><span id="os-clock">00:00</span><span>5G | 100%</span></div>
         <div class="viewport" id="grid"></div>
@@ -100,54 +98,48 @@
     </div>
 
     <div id="win">
-        <div class="win-h"><h3 id="win-t" style="margin:0">App</h3><button onclick="closeWin()" style="border:none; background:none; color:var(--blue); font-weight:bold;">Kapat</button></div>
+        <div class="win-h"><h3 id="win-t" style="margin:0">Uygulama</h3><button onclick="closeWin()" style="border:none; background:none; color:var(--blue); font-weight:bold;">Kapat</button></div>
         <div id="win-b" class="win-b"></div>
     </div>
 
     <script>
-        // BOOT
-        setTimeout(() => { 
-            document.getElementById('boot').style.display = 'none'; 
-            document.getElementById('setup-1').style.display = 'flex'; 
-        }, 3000);
+        // Açılış
+        setTimeout(() => { document.getElementById('boot').style.display='none'; document.getElementById('setup-1').style.display='flex'; }, 3000);
 
-        function nextS(curr, next) {
-            document.getElementById(curr).style.display = 'none';
-            document.getElementById(next).style.display = 'flex';
-        }
+        function nextS(c, n) { document.getElementById(c).style.display='none'; document.getElementById(n).style.display='flex'; }
 
-        // SÖZLEŞME KONTROLÜ
+        // Sözleşme Kaydırma
         const contract = document.getElementById('contract');
-        contract.onscroll = () => {
-            if (contract.scrollHeight - contract.scrollTop <= contract.clientHeight + 10) {
-                let b = document.getElementById('agreeBtn');
-                b.disabled = false; b.style.opacity = '1';
-            }
-        };
+        contract.onscroll = () => { if (contract.scrollHeight - contract.scrollTop <= contract.clientHeight + 20) { document.getElementById('agreeBtn').disabled = false; } };
 
         function finishSetup() {
-            document.getElementById('setup-5').style.display = 'none';
+            document.getElementById('setup-4').style.display = 'none';
             document.getElementById('fin-screen').style.display = 'flex';
-            setTimeout(() => {
-                document.getElementById('fin-screen').style.display = 'none';
-                document.getElementById('lock-screen').style.display = 'flex';
-                renderApps();
-            }, 3000);
+            document.getElementById('startSound').play(); // SEÇİLEN SİSTEM SESİ
+            
+            const logs = ["Dosya sistemi kontrol ediliyor...", "Arayüz yükleniyor...", "YouTube servisi bağlanıyor...", "Sistem hazır!"];
+            let i = 0;
+            let itv = setInterval(() => {
+                document.getElementById('fin-text').innerText = logs[i];
+                i++;
+                if(i >= logs.length) {
+                    clearInterval(itv);
+                    document.getElementById('fin-screen').style.display = 'none';
+                    document.getElementById('lock-screen').style.display = 'flex';
+                    renderApps();
+                }
+            }, 2500);
         }
 
-        function unlock() {
-            document.getElementById('lock-screen').style.transform = "translateY(-100%)";
-            document.getElementById('os').style.display = 'flex';
-        }
+        function unlock() { document.getElementById('lock-screen').style.transform="translateY(-100%)"; document.getElementById('os').style.display='flex'; }
 
         function renderApps() {
             const apps = [
                 {n:'YouTube', i:'🎬', c:'#ff0000'},
-                {n:'Kamera', i:'📷', c:'#333'},
+                {n:'Kutu Kaçış', i:'📦', c:'#333'},
+                {n:'Hızlı Tıkla', i:'⚡', c:'#ffcc00'},
                 {n:'Ayarlar', i:'⚙️', c:'#8e8e93'},
-                {n:'Müzik', i:'🎵', c:'#ff9500'},
-                {n:'Harita', i:'📍', c:'#34c759'},
-                {n:'Market', i:'🛍️', c:'#af52de'}
+                {n:'Terminal', i:'💻', c:'#000'}
             ];
             const grid = document.getElementById('grid');
             grid.innerHTML = "";
@@ -161,33 +153,26 @@
             b.innerHTML = "";
 
             if(name === 'YouTube') {
-                b.innerHTML = `
-                    <div style="height:100%; display:flex; flex-direction:column;">
-                        <div style="background:#fff; padding:10px; border-bottom:1px solid #ddd;">
-                            <input type="text" id="ytSearch" placeholder="YouTube'da ara..." style="width:75%; padding:10px; border-radius:8px; border:1px solid #ccc;">
-                            <button onclick="alert('Aranıyor...')" style="padding:10px; border:none; background:red; color:white; border-radius:8px;">Ara</button>
-                        </div>
-                        <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" style="width:100%; height:250px; border:none;"></iframe>
-                        <div style="flex:1; background:#000; color:white; padding:20px; border-top:4px solid red;">
-                            <h3>🎵 ZORUNLU OYNATMA LİSTESİ</h3>
-                            <div style="background:#222; padding:15px; border-radius:12px; display:flex; align-items:center; gap:10px;">
-                                <div style="font-size:30px;">▶️</div>
-                                <div><b>Yusuf'un Seçimi:</b> Nova Bass 2026<br><small>Bu parça her zaman aktiftir.</small></div>
-                            </div>
-                        </div>
-                    </div>`;
-            } else if(name === 'Telefon') {
-                b.innerHTML = `<div style="text-align:center; padding:20px;"><h1 id="num"></h1><div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:20px;">${[1,2,3,4,5,6,7,8,9,'*',0,'#'].map(x=>`<button style="height:70px; border-radius:50%; border:none; background:#ddd; font-size:24px;" onclick="document.getElementById('num').innerText+='${x}'">${x}</button>`).join('')}</div><button style="width:80%; padding:20px; background:#2ecc71; color:white; border-radius:40px; border:none; font-weight:bold;">ARA</button></div>`;
-            } else if(name === 'Mesajlar') {
-                b.innerHTML = `<div style="padding:15px;"><div style="background:#fff; padding:15px; border-radius:12px; margin-bottom:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1);"><b>Mehmet:</b> Yeni Nova OS V20 Pro'yu çok beğendim, harika olmuş!</div><div style="background:#fff; padding:15px; border-radius:12px; box-shadow:0 2px 5px rgba(0,0,0,0.1);"><b>Sistem:</b> Hoş geldin ${document.getElementById('usrName').value}, tüm servisler aktif.</div></div>`;
+                b.innerHTML = `<iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" style="width:100%; height:250px; border:none;"></iframe>
+                <div style="padding:20px; background:#000; color:white; flex:1;"><h3>🎵 ZORUNLU PLAYLIST</h3><div style="background:#333; padding:15px; border-radius:10px;">Nova V20 Exclusive Audio</div></div>`;
             } else if(name === 'NurıWEB') {
-                b.innerHTML = `<div style="padding:20px; text-align:center;"><input type="text" placeholder="Web'de ara..." style="width:100%; padding:15px; border-radius:12px; border:1px solid #ccc;"><button class="btn">Git</button><div style="margin-top:20px; text-align:left; background:white; padding:15px; border-radius:12px;">En çok aranan: Nova OS Pro Özellikleri</div></div>`;
-            } else if(name === 'Ayarlar') {
-                b.innerHTML = `<div style="padding:20px;"><h3>Genel Bilgiler</h3><div style="background:#fff; padding:15px; border-radius:12px;">Kullanıcı: ${document.getElementById('usrName').value}<br>Cihaz: ${document.getElementById('devName').value}<br>Sürüm: Nova OS V20 Pro</div><button class="btn" onclick="location.reload()">Sistemi Sıfırla</button></div>`;
-            }
+                b.innerHTML = `<div style="padding:20px; text-align:center;">
+                    <input type="text" id="gs" placeholder="Google'da her şeyi ara..." style="width:100%; padding:15px; border-radius:12px; border:1px solid #ddd;">
+                    <button class="btn" onclick="window.open('https://www.google.com/search?q='+document.getElementById('gs').value)">ARAMAYI BAŞLAT</button>
+                    <p style="margin-top:20px; color:#666;">Gerçek web sonuçları yeni sekmede açılır.</p>
+                </div>`;
+            } else if(name === 'Kutu Kaçış') {
+                b.innerHTML = `<div style="padding:40px; text-align:center;"><h3>Kutu Kaçış</h3><div id="gameBox" style="width:60px; height:60px; background:red; position:relative; margin:auto;" onmouseover="this.style.left=Math.random()*200+'px'; this.style.top=Math.random()*200+'px'"></div></div>`;
+            } else if(name === 'Hızlı Tıkla') {
+                let s = 0; b.innerHTML = `<div style="padding:40px; text-align:center;"><h3>Skor: <span id="sk">0</span></h3><button class="btn" onclick="document.getElementById('sk').innerText=++s">HIZLI TIKLA!</button></div>`;
+            } else if(name === 'Telefon') {
+                b.innerHTML = `<div style="padding:20px; text-align:center;"><h1 id="num"></h1><div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px;">${[1,2,3,4,5,6,7,8,9,'*',0,'#'].map(x=>`<button style="height:60px; border-radius:50%; border:none; font-size:20px;" onclick="document.getElementById('num').innerText+='${x}'">${x}</button>`).join('')}</div></div>`;
+            } else if(name === 'Mesajlar') {
+                b.innerHTML = `<div style="padding:20px;"><div style="background:#fff; padding:15px; border-radius:15px; margin-bottom:10px;"><b>Mehmet:</b> Bu V20 sürümü çok stabil!</div><div style="background:#fff; padding:15px; border-radius:15px;"><b>Admin:</b> Güle güle kullanın.</div></div>`;
+            } else { b.innerHTML = `<div style="padding:40px; text-align:center;"><h2>${name}</h2><p>Aktif ve çalışır durumda.</p></div>`; }
         }
 
-        function closeWin() { document.getElementById('win').style.display = 'none'; }
+        function closeWin() { document.getElementById('win').style.display='none'; }
 
         setInterval(() => {
             const d = new Date(); const t = d.getHours().toString().padStart(2,'0')+":"+d.getMinutes().toString().padStart(2,'0');
