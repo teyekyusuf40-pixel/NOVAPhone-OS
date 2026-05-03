@@ -3,187 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nova OS V20 Pro - Power Edition</title>
+    <title>Nova OS V20 Pro - Gaming Edition</title>
     <style>
-        :root { --blue: #007aff; --bg: #f2f2f7; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: -apple-system, sans-serif; overflow: hidden; }
+        :root { --blue: #007aff; --bg: #000; }
+        * { box-sizing: border-box; font-family: -apple-system, sans-serif; overflow: hidden; }
+        body { margin: 0; background: var(--bg); color: white; height: 100vh; display: flex; align-items: center; justify-content: center; }
 
-        /* BOOT ANIMATION */
-        #boot { position: fixed; inset: 0; background: #000; z-index: 100000; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; }
-        .orb { width: 100px; height: 100px; border-radius: 50%; background: radial-gradient(circle, #fff 0%, transparent 70%); filter: blur(15px); animation: pulse 2s infinite alternate; }
+        /* AÇILIŞ EKRANI */
+        #boot { position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .logo { font-size: 40px; letter-spacing: 10px; font-weight: 200; margin-bottom: 20px; }
+        .loader { width: 200px; height: 4px; background: #333; border-radius: 2px; }
+        .progress { width: 0%; height: 100%; background: var(--blue); transition: 5s linear; }
 
-        /* KURULUM SİSTEMİ */
-        .setup-screen { position: fixed; inset: 0; background: #fff; z-index: 90000; display: none; flex-direction: column; padding: 30px; align-items: center; justify-content: center; text-align: center; }
-        .setup-card { width: 100%; max-width: 450px; animation: fadeIn 0.6s; }
-        input, select { width: 100%; padding: 15px; background: #f2f2f7; border: 1px solid #ddd; border-radius: 14px; font-size: 16px; margin-top: 10px; }
-        .btn { width: 100%; padding: 18px; background: var(--blue); border: none; border-radius: 18px; color: white; font-weight: bold; margin-top: 25px; cursor: pointer; }
-        .btn:disabled { opacity: 0.2; }
+        /* ANA EKRAN */
+        #os { display: none; width: 100%; height: 100%; flex-direction: column; padding: 20px; background: #1c1c1e; }
+        .header { text-align: center; margin-bottom: 30px; color: var(--blue); font-weight: bold; }
+        .app-container { display: flex; flex-direction: column; gap: 20px; align-items: center; justify-content: center; flex: 1; }
+        .big-app { width: 90%; max-width: 400px; height: 180px; border-radius: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .big-app:active { transform: scale(0.95); }
+        .snake-btn { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+        .car-btn { background: linear-gradient(135deg, #e74c3c, #c0392b); }
 
-        /* KİLİT EKRANI */
-        #lock-screen { position: fixed; inset: 0; background: url('https://images.unsplash.com/photo-1494253109108-2e30c049369b') center/cover; z-index: 80000; display: none; flex-direction: column; align-items: center; justify-content: space-between; padding: 80px 0; color: white; transition: 0.8s; }
-        .lock-time { font-size: 90px; font-weight: 200; }
-
-        /* ANA SİSTEM */
-        #os { display: none; height: 100vh; flex-direction: column; background: url('https://images.unsplash.com/photo-1477346611705-65d1883cee1e') center/cover; }
-        .status-bar { height: 44px; display: flex; justify-content: space-between; align-items: center; padding: 0 25px; background: rgba(0,0,0,0.3); backdrop-filter: blur(25px); color: white; font-size: 14px; }
-        .viewport { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; padding: 20px; align-content: start; overflow-y: auto; }
-        .app { display: flex; flex-direction: column; align-items: center; margin-bottom: 10px; }
-        .app-icon { width: 65px; height: 65px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 8px 20px rgba(0,0,0,0.4); transition: 0.2s; }
-        .app span { font-size: 10px; margin-top: 6px; color: white; font-weight: 500; text-shadow: 0 1px 3px #000; }
-
-        /* PENCERE */
-        #win { position: fixed; inset: 0; background: #fff; z-index: 20000; display: none; flex-direction: column; animation: slideUp 0.4s ease-out; }
-        .win-h { height: 65px; display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid #eee; justify-content: space-between; background: #fff; }
-        .win-b { flex: 1; overflow-y: auto; background: #f2f2f7; }
-
-        .dock { height: 95px; background: rgba(255,255,255,0.2); backdrop-filter: blur(40px); margin: 15px; border-radius: 35px; display: flex; justify-content: space-around; align-items: center; border: 1px solid rgba(255,255,255,0.1); }
-
-        @keyframes pulse { from { opacity: 0.5; transform: scale(0.9); } to { opacity: 1; transform: scale(1.1); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        /* OYUN PENCERESİ */
+        #game-win { position: fixed; inset: 0; background: #000; z-index: 500; display: none; flex-direction: column; }
+        canvas { background: #111; display: block; margin: auto; border: 2px solid #333; }
+        .controls { height: 150px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 10px; }
+        .ctrl-btn { background: #333; border: none; color: white; border-radius: 15px; font-size: 20px; }
+        .close-btn { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.2); border: none; color: white; padding: 10px 20px; border-radius: 10px; z-index: 600; }
     </style>
 </head>
 <body>
 
-    <audio id="startSnd" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
-
-    <div id="boot"><div class="orb"></div><h2 style="letter-spacing:12px; margin-top:30px; font-weight:300;">NOVA OS</h2></div>
-
-    <div id="setup-1" class="setup-screen" style="display:none;"><div class="setup-card"><h2>Merhaba</h2><p>Nova OS V20 Pro - Yusuf Edition Kurulumu.</p><button class="btn" onclick="nextS('setup-1','setup-2')">Kurulumu Başlat</button></div></div>
-    
-    <div id="setup-2" class="setup-screen"><div class="setup-card"><h2>Ağ ve Bölge</h2><select><option>Türkiye</option></select><input type="password" placeholder="Wi-Fi Şifresi" value="nova-v20-pro"><button class="btn" onclick="nextS('setup-2','setup-3')">İleri</button></div></div>
-
-    <div id="setup-3" class="setup-screen">
-        <div class="setup-card">
-            <h2>Kullanıcı Sözleşmesi</h2>
-            <div id="contract" style="height: 250px; overflow-y: scroll; background: #f2f2f7; padding: 15px; font-size: 13px; text-align: left; border-radius: 12px; border: 1px solid #ddd; line-height: 1.6;">
-                <strong>NOVA OS V20 LİSANS SÖZLEŞMESİ (20 SAYFA SİMÜLASYONU)</strong><br><br>
-                1. Bu sistem Yusuf'un istekleri doğrultusunda geliştirilmiştir. <br>
-                2. 10 Adet aktif çalışan uygulama içerir. <br>
-                3. YouTube zorunlu müzik çalma listesiyle birlikte gelir. <br>
-                4. NurıWEB gerçek Google araması yapar. <br>
-                5. V20 Güncellemesi donma sorunu içermez. <br><br>
-                (Sözleşmeyi butonu açmak için en aşağıya kaydırın...) <br><br>
-                Bu bir yasal uyarı simülasyonudur. <br><br>
-                --- SON ---
-            </div>
-            <button id="agreeBtn" class="btn" disabled onclick="nextS('setup-3','setup-4')">Okudum ve Onaylıyorum</button>
-        </div>
+    <!-- BOOT -->
+    <div id="boot">
+        <div class="logo">NOVA OS</div>
+        <div style="margin-bottom: 10px; font-size: 14px; color: #888;">Admin Yusuf için hazırlanıyor...</div>
+        <div class="loader"><div class="progress" id="prg"></div></div>
     </div>
 
-    <div id="setup-4" class="setup-screen"><div class="setup-card"><h2>Profil</h2><input type="text" id="usrName" value="Admin Yusuf"><button class="btn" onclick="finishSetup()">Sistemi Tamamla</button></div></div>
-
-    <div id="fin-screen" class="setup-screen">
-        <div class="orb" style="background: radial-gradient(circle, var(--blue) 0%, transparent 70%);"></div>
-        <h2 style="margin-top:30px;">Sizin için her şeyi ayarlıyoruz...</h2>
-        <div id="log-box" style="opacity:0.6; font-size:14px; margin-top:15px; font-family:monospace;">Sistem çekirdeği yükleniyor...</div>
-    </div>
-
-    <div id="lock-screen" onclick="unlock()">
-        <div class="lock-time" id="lock-time">00:00</div>
-        <p style="font-size: 18px; animation: pulse 2s infinite;">Giriş yapmak için dokunun</p>
-    </div>
-
+    <!-- OS -->
     <div id="os">
-        <div class="status-bar"><span id="os-clock">00:00</span><span>5G | %100</span></div>
-        <div class="viewport" id="grid"></div>
-        <div class="dock">
-            <div class="app" onclick="openApp('Telefon')"><div class="app-icon" style="background:#2ecc71; color:white;">📞</div></div>
-            <div class="app" onclick="openApp('NurıWEB')"><div class="app-icon" style="background:#fff;">🌐</div></div>
-            <div class="app" onclick="openApp('Mesajlar')"><div class="app-icon" style="background:#007aff; color:white;">💬</div></div>
+        <div class="header">NOVA OS V20 PRO</div>
+        <div class="app-container">
+            <div class="big-app snake-btn" onclick="startSnake()">🐍 YILAN OYUNU</div>
+            <div class="big-app car-btn" onclick="startCar()">🏎️ ARABA YARIŞI</div>
         </div>
     </div>
 
-    <div id="win">
-        <div class="win-h"><h3 id="win-t">App</h3><button onclick="closeWin()" style="border:none; background:none; color:var(--blue); font-weight:bold;">Kapat</button></div>
-        <div id="win-b" class="win-b"></div>
+    <!-- GAME WINDOW -->
+    <div id="game-win">
+        <button class="close-btn" onclick="closeGame()">KAPAT</button>
+        <canvas id="gameCanvas"></canvas>
+        <div id="snake-ctrl" class="controls" style="display:none;">
+            <div></div><button class="ctrl-btn" onclick="changeDir('UP')">▲</button><div></div>
+            <button class="ctrl-btn" onclick="changeDir('LEFT')">◀</button>
+            <button class="ctrl-btn" onclick="changeDir('DOWN')">▼</button>
+            <button class="ctrl-btn" onclick="changeDir('RIGHT')">▶</button>
+        </div>
+        <div id="car-ctrl" class="controls" style="display:none;">
+            <button class="ctrl-btn" style="grid-column: 1" onmousedown="moveCar('LEFT')" onmouseup="stopCar()">◀ SOL</button>
+            <div></div>
+            <button class="ctrl-btn" style="grid-column: 3" onmousedown="moveCar('RIGHT')" onmouseup="stopCar()">SAĞ ▶</button>
+        </div>
     </div>
 
     <script>
-        setTimeout(() => { document.getElementById('boot').style.display='none'; document.getElementById('setup-1').style.display='flex'; }, 3000);
+        // BOOT SEQUENCE
+        const prg = document.getElementById('prg');
+        setTimeout(() => prg.style.width = '100%', 100);
+        setTimeout(() => {
+            document.getElementById('boot').style.display = 'none';
+            document.getElementById('os').style.display = 'flex';
+        }, 5100);
 
-        function nextS(c, n) { document.getElementById(c).style.display='none'; document.getElementById(n).style.display='flex'; }
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        let gameInterval;
+        let currentGame = "";
 
-        const contract = document.getElementById('contract');
-        contract.onscroll = () => { if (contract.scrollHeight - contract.scrollTop <= contract.clientHeight + 20) { document.getElementById('agreeBtn').disabled = false; } };
+        // SNAKE GAME LOGIC
+        let snake, food, direction, score;
+        function startSnake() {
+            currentGame = "SNAKE";
+            document.getElementById('game-win').style.display = 'flex';
+            document.getElementById('snake-ctrl').style.display = 'grid';
+            canvas.width = 300; canvas.height = 300;
+            snake = [{x: 10, y: 10}];
+            food = {x: 15, y: 15};
+            direction = 'RIGHT';
+            gameInterval = setInterval(drawSnake, 150);
+        }
 
-        function finishSetup() {
-            document.getElementById('setup-4').style.display = 'none';
-            document.getElementById('fin-screen').style.display = 'flex';
-            document.getElementById('startSnd').play();
+        function drawSnake() {
+            ctx.fillStyle = "black"; ctx.fillRect(0,0,300,300);
+            let headX = snake[0].x; let headY = snake[0].y;
+            if(direction == 'UP') headY--; if(direction == 'DOWN') headY++;
+            if(direction == 'LEFT') headX--; if(direction == 'RIGHT') headX++;
             
-            const logs = [
-                "Yusuf'un dosyaları optimize ediliyor...",
-                "10 Uygulama paketi kuruluyor...",
-                "YouTube ve Müzik servisi ayarlanıyor...",
-                "Hata giderme motoru (Anti-Freeze) başlatılıyor...",
-                "Kilit ekranı güvenliği yapılandırılıyor...",
-                "Sistem Başlatılmaya Hazır!"
-            ];
-            let i = 0;
-            let itv = setInterval(() => {
-                document.getElementById('log-box').innerText = "> " + logs[i];
-                i++;
-                if(i >= logs.length) {
-                    clearInterval(itv);
-                    setTimeout(() => {
-                        document.getElementById('fin-screen').style.display = 'none';
-                        document.getElementById('lock-screen').style.display = 'flex';
-                        renderApps();
-                    }, 1000);
-                }
-            }, 2500);
+            if(headX == food.x && headY == food.y) {
+                food = {x: Math.floor(Math.random()*19), y: Math.floor(Math.random()*19)};
+            } else { snake.pop(); }
+            
+            let newHead = {x: headX, y: headY};
+            if(headX<0 || headX>19 || headY<0 || headY>19) return gameOver();
+            snake.unshift(newHead);
+            
+            ctx.fillStyle = "red"; ctx.fillRect(food.x*15, food.y*15, 14, 14);
+            ctx.fillStyle = "#2ecc71";
+            snake.forEach(p => ctx.fillRect(p.x*15, p.y*15, 14, 14));
         }
 
-        function unlock() { document.getElementById('lock-screen').style.transform="translateY(-100%)"; document.getElementById('os').style.display='flex'; }
+        function changeDir(d) { direction = d; }
 
-        function renderApps() {
-            const apps = [
-                {n:'YouTube', i:'🎬', c:'#ff0000'},
-                {n:'Kutu Kaçış', i:'📦', c:'#333'},
-                {n:'Hızlı Tıkla', i:'⚡', c:'#ffcc00'},
-                {n:'Ayarlar', i:'⚙️', c:'#8e8e93'},
-                {n:'Galeri', i:'🖼️', c:'#ff2d55'},
-                {n:'Terminal', i:'💻', c:'#000'},
-                {n:'Dosyalar', i:'📂', c:'#5ac8fa'},
-                {n:'Hava Durumu', i:'☀️', c:'#ff9500'},
-                {n:'Notlar', i:'📝', c:'#ffcc00'},
-                {n:'Hesap Makinesi', i:'🔢', c:'#34c759'}
-            ];
-            const grid = document.getElementById('grid');
-            grid.innerHTML = "";
-            apps.forEach(a => grid.innerHTML += `<div class="app" onclick="openApp('${a.n}')"><div class="app-icon" style="background:${a.c}">${a.i}</div><span>${a.n}</span></div>`);
+        // CAR GAME LOGIC
+        let carX, obstacles;
+        function startCar() {
+            currentGame = "CAR";
+            document.getElementById('game-win').style.display = 'flex';
+            document.getElementById('car-ctrl').style.display = 'grid';
+            canvas.width = 300; canvas.height = 400;
+            carX = 135; obstacles = [];
+            gameInterval = setInterval(drawCar, 30);
         }
 
-        function openApp(name) {
-            document.getElementById('win-t').innerText = name;
-            const b = document.getElementById('win-b');
-            document.getElementById('win').style.display = 'flex';
-            b.innerHTML = "";
-
-            if(name === 'YouTube') {
-                b.innerHTML = `<iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" style="width:100%; height:250px; border:none;"></iframe>
-                <div style="padding:20px; background:#000; color:white;"><h3>🎵 ZORUNLU MÜZİK</h3><p>Nova Mix - Admin Yusuf Playlist</p></div>`;
-            } else if(name === 'NurıWEB') {
-                b.innerHTML = `<div style="padding:20px; text-align:center;">
-                    <input type="text" id="gs" placeholder="Google'da ara..." style="width:100%; padding:15px; border-radius:12px; border:1px solid #ddd;">
-                    <button class="btn" onclick="window.open('https://www.google.com/search?q='+document.getElementById('gs').value)">GOOGLE'DA ARA</button>
-                </div>`;
-            } else if(name === 'Kutu Kaçış') {
-                b.innerHTML = `<div style="padding:40px; text-align:center;"><h3>Kutu Kaçış</h3><div id="gb" style="width:60px; height:60px; background:red; position:relative; margin:auto;" onmouseover="this.style.left=Math.random()*150+'px'; this.style.top=Math.random()*150+'px'"></div></div>`;
-            } else if(name === 'Terminal') {
-                b.innerHTML = `<div style="padding:20px; background:#000; color:#0f0; font-family:monospace; height:100%;">NovaOS_V20_Pro login: Admin<br>Password: ********<br>System status: OK<br>Yusuf is Online._</div>`;
-            } else { b.innerHTML = `<div style="padding:40px; text-align:center;"><h2>${name}</h2><p>V20 Pro sürümünde aktif çalışan uygulama.</p></div>`; }
+        function drawCar() {
+            ctx.fillStyle = "#222"; ctx.fillRect(0,0,300,400);
+            ctx.fillStyle = "white"; ctx.fillRect(148, 0, 4, 400); // Yol çizgisi
+            
+            ctx.fillStyle = "#3498db"; ctx.fillRect(carX, 330, 30, 50); // Oyuncu arabası
+            
+            if(Math.random() < 0.05) obstacles.push({x: Math.random()*270, y: -50});
+            ctx.fillStyle = "#e74c3c";
+            obstacles.forEach((o, i) => {
+                o.y += 5;
+                ctx.fillRect(o.x, o.y, 30, 50);
+                if(o.y > 400) obstacles.splice(i, 1);
+                if(o.y > 300 && o.y < 380 && o.x < carX+30 && o.x+30 > carX) gameOver();
+            });
         }
 
-        function closeWin() { document.getElementById('win').style.display='none'; }
+        let carMove = 0;
+        function moveCar(d) { carMove = d === 'LEFT' ? -8 : 8; }
+        function stopCar() { carMove = 0; }
+        setInterval(() => { if(carMove) { carX += carMove; if(carX<0)carX=0; if(carX>270)carX=270; } }, 30);
 
-        setInterval(() => {
-            const d = new Date(); const t = d.getHours().toString().padStart(2,'0')+":"+d.getMinutes().toString().padStart(2,'0');
-            if(document.getElementById('lock-time')) document.getElementById('lock-time').innerText = t;
-            if(document.getElementById('os-clock')) document.getElementById('os-clock').innerText = t;
-        }, 1000);
+        function gameOver() { alert("OYUN BİTTİ!"); closeGame(); }
+        function closeGame() {
+            clearInterval(gameInterval);
+            document.getElementById('game-win').style.display = 'none';
+            document.getElementById('snake-ctrl').style.display = 'none';
+            document.getElementById('car-ctrl').style.display = 'none';
+        }
     </script>
 </body>
 </html>
